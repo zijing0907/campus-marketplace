@@ -10,6 +10,9 @@ A web app where university students buy and sell used items (textbooks, electron
 - Passwords stored as bcrypt hashes with `password_hash()`, never as plain text
 - Sessions that use HttpOnly, SameSite cookies and get a new session ID at every login
 - A CSRF token on every form, prepared statements for every query, and all output escaped
+- Edit your profile: display name, faculty, phone and a profile photo
+- Photo uploads are checked by their contents (JPG, PNG or WebP, up to 2 MB) and saved under random names
+- Photos are shrunk in the browser before upload, so large phone photos upload quickly
 
 ## Tech stack
 

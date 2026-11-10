@@ -15,6 +15,11 @@ a {
     color: #2563eb;
 }
 
+/* The hidden attribute must win even over classes that set "display". */
+[hidden] {
+    display: none !important;
+}
+
 /* ---------- Header and navigation ---------- */
 
 .site-header {
@@ -161,8 +166,14 @@ label {
     font-weight: 600;
 }
 
+.optional {
+    color: #52606d;
+    font-weight: 400;
+}
+
 input[type="text"],
 input[type="email"],
+input[type="tel"],
 input[type="password"] {
     width: 100%;
     padding: 10px 12px;
@@ -225,6 +236,58 @@ a:focus-visible {
     background: #eff4ff;
     border-color: #c7d7fe;
     color: #1d4ed8;
+}
+
+/* ---------- Profile photo ---------- */
+
+.avatar {
+    flex-shrink: 0;                /* stays round when the row gets narrow */
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    object-fit: cover;             /* fills the circle without stretching the photo */
+    background: #e3e6ea;
+}
+
+/* Shown when a user has no photo: a circle with the first letter of their name. */
+.avatar-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #dbe4ff;
+    color: #1d4ed8;
+    font-size: 1.75rem;
+    font-weight: 700;
+}
+
+.profile-head,
+.photo-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-head h1 {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.photo-row input[type="file"] {
+    flex: 1;
+    min-width: 0;                  /* lets the file picker shrink on a narrow phone */
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+}
+
+.muted {
+    color: #52606d;
 }
 
 /* ---------- Account details ---------- */

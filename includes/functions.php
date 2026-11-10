@@ -74,6 +74,35 @@ function take_flash(): ?array
 }
 
 /**
+ * Check a display name. Returns an error message, or null if the name is fine.
+ * Shared by the register and edit-profile forms so the rule lives in one place.
+ */
+function validate_name(string $name): ?string
+{
+    if (mb_strlen($name) < 2 || mb_strlen($name) > 100) {
+        return 'Enter your name (2 to 100 characters).';
+    }
+
+    return null;
+}
+
+/**
+ * HTML for a user's profile photo, or a circle with their initial if they have none.
+ * $user is a row from the users table; it needs the name and avatar_path columns.
+ */
+function avatar_html(array $user): string
+{
+    if (!empty($user['avatar_path'])) {
+        // alt is empty because the user's name is always shown next to the photo.
+        return '<img class="avatar" src="/' . e($user['avatar_path']) . '" alt="">';
+    }
+
+    $initial = mb_strtoupper(mb_substr($user['name'], 0, 1));
+
+    return '<span class="avatar avatar-placeholder" aria-hidden="true">' . e($initial) . '</span>';
+}
+
+/**
  * HTML for one field's validation message, or an empty string if the field is fine.
  */
 function field_error(array $errors, string $field): string

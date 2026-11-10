@@ -1,6 +1,5 @@
 <?php
 // My account. Only logged-in students can open this page (NFR-04).
-// Editing the profile (FR-04) will be added here later.
 require __DIR__ . '/../includes/bootstrap.php';
 $user = require_login();
 
@@ -9,15 +8,35 @@ require __DIR__ . '/../includes/header.php';
 ?>
 
 <section class="form-card">
-    <h1>My account</h1>
+    <div class="profile-head">
+        <?= avatar_html($user) ?>
+        <div>
+            <h1><?= e($user['name']) ?></h1>
+            <p class="note"><?= e($user['email']) ?></p>
+        </div>
+    </div>
 
     <dl class="details">
-        <dt>Name</dt>
-        <dd><?= e($user['name']) ?></dd>
+        <dt>Faculty</dt>
+        <dd>
+            <?php if ($user['faculty'] !== null): ?>
+                <?= e($user['faculty']) ?>
+            <?php else: ?>
+                <span class="muted">Not set</span>
+            <?php endif; ?>
+        </dd>
 
-        <dt>Email</dt>
-        <dd><?= e($user['email']) ?></dd>
+        <dt>Phone or WhatsApp</dt>
+        <dd>
+            <?php if ($user['phone'] !== null): ?>
+                <?= e($user['phone']) ?>
+            <?php else: ?>
+                <span class="muted">Not set</span>
+            <?php endif; ?>
+        </dd>
     </dl>
+
+    <a class="button" href="/pages/profile-edit.php">Edit profile</a>
 </section>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

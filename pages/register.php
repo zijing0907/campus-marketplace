@@ -20,8 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Server-side validation. The browser checks the same rules, but browser
     // checks can be switched off, so these are the ones that count (NFR-06).
-    if (mb_strlen($name) < 2 || mb_strlen($name) > 100) {
-        $errors['name'] = 'Enter your name (2 to 100 characters).';
+    $nameError = validate_name($name);
+    if ($nameError !== null) {
+        $errors['name'] = $nameError;
     }
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {

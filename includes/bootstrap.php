@@ -7,6 +7,7 @@ require_once __DIR__ . '/functions.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/csrf.php';
+require_once __DIR__ . '/uploads.php';
 
 start_secure_session();
 
