@@ -4,6 +4,13 @@ A web app where university students buy and sell used items (textbooks, electron
 
 **Status:** in development.
 
+## Features so far
+
+- Register with a university email (only `@1utar.my` addresses are accepted), log in and log out
+- Passwords stored as bcrypt hashes with `password_hash()`, never as plain text
+- Sessions that use HttpOnly, SameSite cookies and get a new session ID at every login
+- A CSRF token on every form, prepared statements for every query, and all output escaped
+
 ## Tech stack
 
 PHP 8 (plain PHP, PDO) · MySQL · HTML, CSS, vanilla JavaScript
@@ -14,7 +21,7 @@ PHP 8 (plain PHP, PDO) · MySQL · HTML, CSS, vanilla JavaScript
 |---|---|
 | `config/` | Settings such as database credentials |
 | `database/` | `schema.sql`, which creates all the tables |
-| `includes/` | Shared PHP: header, footer, helper functions |
+| `includes/` | Shared PHP: header, footer, database connection, sessions and login, CSRF protection |
 | `api/` | PHP endpoints that return JSON |
 | `pages/` | The site's pages |
 | `assets/` | CSS, JavaScript, images |

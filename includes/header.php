@@ -1,7 +1,7 @@
 <?php
 // Shared top of every page (NFR-10: no repeated header HTML).
-// A page sets $pageTitle, then requires this file.
-require_once __DIR__ . '/functions.php';
+// A page requires bootstrap.php first, sets $pageTitle, then requires this file.
+// $currentUser comes from bootstrap.php: the logged-in user's row, or null for a guest.
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -16,6 +16,19 @@ require_once __DIR__ . '/functions.php';
     <a class="brand" href="/">Campus Marketplace</a>
     <nav>
         <a href="/">Browse</a>
+        <?php if ($currentUser): ?>
+            <a class="nav-user" href="/pages/profile.php"><?= e($currentUser['name']) ?></a>
+            <form method="post" action="/pages/logout.php" class="inline-form">
+                <?= csrf_field() ?>
+                <button type="submit" class="link-button">Log out</button>
+            </form>
+        <?php else: ?>
+            <a href="/pages/login.php">Log in</a>
+            <a href="/pages/register.php">Register</a>
+        <?php endif; ?>
     </nav>
 </header>
 <main>
+<?php if ($flash = take_flash()): ?>
+    <p class="alert alert-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></p>
+<?php endif; ?>

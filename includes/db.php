@@ -1,8 +1,9 @@
 <?php
-// Database connection. Any page or API file that needs the database does:
-//   require_once __DIR__ . '/../includes/db.php';
+// Database connection. Any page or API file that needs the database calls db():
 //   $stmt = db()->prepare('SELECT * FROM listings WHERE id = ?');
 //   $stmt->execute([$id]);
+
+require_once __DIR__ . '/functions.php';
 
 /**
  * Return the shared PDO connection, creating it on first use.
@@ -13,11 +14,7 @@ function db(): PDO
     static $pdo = null;
 
     if ($pdo === null) {
-        $configFile = __DIR__ . '/../config/config.php';
-        if (!is_file($configFile)) {
-            throw new RuntimeException('Missing config/config.php. Copy config/config.example.php and fill it in.');
-        }
-        $config = require $configFile;
+        $config = config();
 
         $dsn = sprintf(
             'mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4',
