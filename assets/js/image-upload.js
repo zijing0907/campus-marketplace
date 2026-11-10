@@ -1,51 +1,58 @@
-// Shrinks a chosen photo in the browser before it is uploaded, and shows a preview.
+// Shrinks chosen photos in the browser before they are uploaded, and shows previews.
 //
-// Why: phone photos are often 3 to 8 MB, but the server accepts at most 2 MB.
-// Drawing the photo onto a smaller <canvas> and saving that as a JPEG usually gives
-// a file under 200 KB. Uploads are faster on mobile data, the size limit is not hit,
-// and details stored inside the original photo, such as the GPS location where it
-// was taken, are left behind.
+// Why: phone photos are often 3 to 8 MB, but the server accepts at most 2 MB each.
+// Drawing a photo onto a smaller <canvas> and saving that as a JPEG usually gives a
+// file of a few hundred KB or less. Uploads are faster on mobile data, the size
+// limit is not hit, and details stored inside the original photo, such as the GPS
+// location where it was taken, are left behind.
 //
 // How to use it on a file input:
 //   <input type="file" data-resize-max="400" data-preview="#some-img">
-//   data-resize-max     longest side, in pixels, of the image that gets uploaded
-//   data-preview        CSS selector of the <img> that shows the chosen photo
-//   data-preview-hides  (optional) selector of an element to hide once the preview shows
+//   <input type="file" multiple data-resize-max="1200" data-max-files="5"
+//          data-preview-list="#some-div">
+//
+//   data-resize-max     longest side, in pixels, of each image that gets uploaded
+//   data-max-files      how many photos to keep (default 1)
+//   data-preview        selector of one <img> that shows the chosen photo
+//   data-preview-hides  (optional) selector of an element to hide once that preview shows
+//   data-preview-list   selector of a container that gets one small <img> per photo
 //
 // The server checks every upload again (includes/uploads.php). This script makes
 // uploading nicer for the user; it is not a security check.
 
 document.querySelectorAll('input[type="file"][data-resize-max]').forEach((input) => {
-    input.addEventListener('change', () => handleChosenFile(input));
+    input.addEventListener('change', () => handleChosenFiles(input));
 });
 
-async function handleChosenFile(input) {
-    const file = input.files[0];
-    if (!file) {
-        return;
-    }
+async function handleChosenFiles(input) {
+    const chosen = Array.from(input.files);
+    const maxFiles = Number(input.dataset.maxFiles || 1);
+    const maxSide = Number(input.dataset.resizeMax);
 
-    // Keep the form from being submitted while the photo is still being processed.
+    // Keep the form from being submitted while the photos are still being processed.
     const submitButton = input.form.querySelector('button[type="submit"]');
     submitButton.disabled = true;
 
-    try {
-        const smaller = await resizeImage(file, Number(input.dataset.resizeMax));
+    // For security, JavaScript may not write to an input's file list directly.
+    // A DataTransfer object is the supported way to build a new list.
+    const transfer = new DataTransfer();
+    const previewable = [];
 
-        // Swap the chosen file for the smaller one. For security, JavaScript may not
-        // write to an input's file list directly; a DataTransfer object is the
-        // supported way to build a new list.
-        const transfer = new DataTransfer();
-        transfer.items.add(smaller);
-        input.files = transfer.files;
-
-        showPreview(input, smaller);
-    } catch (error) {
-        // The browser could not read the file as an image. Leave it as chosen:
-        // the server will reject it and tell the user why.
-    } finally {
-        submitButton.disabled = false;
+    for (const file of chosen.slice(0, maxFiles)) {
+        try {
+            const smaller = await resizeImage(file, maxSide);
+            transfer.items.add(smaller);
+            previewable.push(smaller);
+        } catch (error) {
+            // The browser could not read this file as an image. Send it unchanged:
+            // the server will reject it and tell the user why.
+            transfer.items.add(file);
+        }
     }
+
+    input.files = transfer.files;
+    showPreviews(input, previewable, chosen.length > maxFiles);
+    submitButton.disabled = false;
 }
 
 // Returns a JPEG copy of the image whose longest side is at most maxSide pixels.
@@ -87,16 +94,36 @@ function loadImage(file) {
     });
 }
 
-function showPreview(input, file) {
-    const preview = document.querySelector(input.dataset.preview);
-    if (!preview) {
-        return;
+function showPreviews(input, files, someWereDropped) {
+    // One fixed <img>, used for the profile photo.
+    const single = input.dataset.preview ? document.querySelector(input.dataset.preview) : null;
+    if (single && files.length > 0) {
+        single.src = URL.createObjectURL(files[0]);
+        single.hidden = false;
+
+        if (input.dataset.previewHides) {
+            document.querySelector(input.dataset.previewHides).hidden = true;
+        }
     }
 
-    preview.src = URL.createObjectURL(file);
-    preview.hidden = false;
+    // A container that gets one small <img> per photo, used for listing photos.
+    const list = input.dataset.previewList ? document.querySelector(input.dataset.previewList) : null;
+    if (list) {
+        list.replaceChildren();
 
-    if (input.dataset.previewHides) {
-        document.querySelector(input.dataset.previewHides).hidden = true;
+        files.forEach((file, index) => {
+            const thumb = document.createElement('img');
+            thumb.src = URL.createObjectURL(file);
+            thumb.alt = 'Photo ' + (index + 1);
+            thumb.className = 'photo-preview';
+            list.append(thumb);
+        });
+
+        if (someWereDropped) {
+            const note = document.createElement('p');
+            note.className = 'hint';
+            note.textContent = 'Only the first ' + input.dataset.maxFiles + ' photos were kept.';
+            list.append(note);
+        }
     }
 }

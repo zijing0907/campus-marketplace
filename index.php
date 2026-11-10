@@ -10,12 +10,14 @@ require __DIR__ . '/includes/header.php';
     <h1>Campus Marketplace</h1>
     <p>Buy and sell used textbooks, electronics and hostel essentials on campus.</p>
 
-    <?php if (!$currentUser): ?>
-        <p class="hero-actions">
+    <p class="hero-actions">
+        <?php if ($currentUser): ?>
+            <a class="button" href="/pages/listing-create.php">Sell an item</a>
+        <?php else: ?>
             <a class="button" href="/pages/register.php">Create an account</a>
             <a class="button button-secondary" href="/pages/login.php">Log in</a>
-        </p>
-    <?php endif; ?>
+        <?php endif; ?>
+    </p>
 </section>
 
 <?php require __DIR__ . '/includes/footer.php'; ?>

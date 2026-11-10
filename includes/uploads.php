@@ -38,6 +38,38 @@ function has_upload(?array $file): bool
 }
 
 /**
+ * Turn the files of a multi-file field, such as <input name="photos[]" multiple>,
+ * into a plain list with one array per file. Empty slots are skipped.
+ *
+ * PHP groups multi-file uploads by property: $_FILES['photos']['name'][0],
+ * $_FILES['photos']['name'][1], and so on. This regroups them by file, so each
+ * one can be passed to save_uploaded_image().
+ */
+function uploaded_files(string $field): array
+{
+    $raw = $_FILES[$field] ?? null;
+
+    if ($raw === null || !is_array($raw['error'] ?? null)) {
+        return [];
+    }
+
+    $files = [];
+    foreach ($raw['error'] as $i => $error) {
+        if ($error === UPLOAD_ERR_NO_FILE) {
+            continue;
+        }
+        $files[] = [
+            'name'     => $raw['name'][$i],
+            'tmp_name' => $raw['tmp_name'][$i],
+            'error'    => $error,
+            'size'     => $raw['size'][$i],
+        ];
+    }
+
+    return $files;
+}
+
+/**
  * Check one uploaded image and move it into uploads/<folder>/ under a random name.
  *
  * Returns ['path' => 'uploads/avatars/3f9c...e1.jpg'] on success,

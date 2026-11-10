@@ -13,6 +13,9 @@ A web app where university students buy and sell used items (textbooks, electron
 - Edit your profile: display name, faculty, phone and a profile photo
 - Photo uploads are checked by their contents (JPG, PNG or WebP, up to 2 MB) and saved under random names
 - Photos are shrunk in the browser before upload, so large phone photos upload quickly
+- Sell an item: post a listing with a title, price, category, condition, meetup location and 1 to 5 photos
+- Listing page with a photo gallery and the seller's details
+- A seller's phone number and WhatsApp button are shown to logged-in students only, never to guests
 
 ## Tech stack
 

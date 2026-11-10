@@ -8,4 +8,5 @@ return [
     'db_user' => 'root',
     'db_pass' => '',
     'university_email_domain' => '1utar.my',
+    'timezone' => 'Asia/Kuala_Lumpur',
 ];

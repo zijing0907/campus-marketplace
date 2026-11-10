@@ -17,6 +17,7 @@
     <nav>
         <a href="/">Browse</a>
         <?php if ($currentUser): ?>
+            <a href="/pages/listing-create.php">Sell</a>
             <a class="nav-user" href="/pages/profile.php"><?= e($currentUser['name']) ?></a>
             <form method="post" action="/pages/logout.php" class="inline-form">
                 <?= csrf_field() ?>

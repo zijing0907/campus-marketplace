@@ -31,6 +31,11 @@ function db(): PDO
             // Use real prepared statements, the defence against SQL injection (NFR-01).
             PDO::ATTR_EMULATE_PREPARES => false,
         ]);
+
+        // Make MySQL use the same time zone as PHP (set in bootstrap.php), so the
+        // dates it returns are correct wherever the server happens to be located.
+        // date('P') gives the offset from UTC, for example "+08:00".
+        $pdo->prepare('SET time_zone = ?')->execute([date('P')]);
     }
 
     return $pdo;

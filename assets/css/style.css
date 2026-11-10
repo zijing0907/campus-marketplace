@@ -150,6 +150,11 @@ main {
     border-radius: 8px;
 }
 
+/* A roomier card for longer forms such as "Sell an item". */
+.form-card-wide {
+    max-width: 640px;
+}
+
 .form-card h1 {
     margin: 0 0 4px;
     font-size: 1.5rem;
@@ -174,15 +179,39 @@ label {
 input[type="text"],
 input[type="email"],
 input[type="tel"],
-input[type="password"] {
+input[type="number"],
+input[type="password"],
+select,
+textarea {
     width: 100%;
     padding: 10px 12px;
     border: 1px solid #c5ccd3;
     border-radius: 6px;
+    background: #ffffff;
+    color: inherit;
     font: inherit;                 /* 16px text also stops phones zooming in on focus */
 }
 
+textarea {
+    resize: vertical;              /* the user can make it taller, not wider */
+}
+
+/* Two fields side by side on wider screens, stacked on a phone. */
+.form-row {
+    display: grid;
+    gap: 0 16px;
+}
+
+@media (min-width: 520px) {
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.gallery-thumb:focus-visible,
 .button:focus-visible,
 .link-button:focus-visible,
 a:focus-visible {
@@ -288,6 +317,172 @@ a:focus-visible {
 
 .muted {
     color: #52606d;
+}
+
+/* ---------- Photo previews on the Sell form ---------- */
+
+.photo-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.photo-previews:empty {
+    display: none;
+}
+
+.photo-preview {
+    width: 72px;
+    height: 72px;
+    border: 1px solid #e3e6ea;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.photo-previews .hint {
+    flex-basis: 100%;              /* the note sits on its own line under the photos */
+}
+
+/* ---------- Listing page ---------- */
+
+.listing {
+    display: grid;
+    gap: 24px;
+}
+
+/* Photos beside the details on wider screens; stacked on a phone. */
+@media (min-width: 760px) {
+    .listing {
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+    }
+}
+
+.gallery-main {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    background: #ffffff;
+    object-fit: contain;           /* the whole photo is visible, never cropped */
+}
+
+.gallery-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.gallery-thumb {
+    padding: 0;
+    border: 2px solid transparent;
+    border-radius: 6px;
+    background: none;
+    cursor: pointer;
+}
+
+.gallery-thumb[aria-current="true"] {
+    border-color: #2563eb;
+}
+
+.gallery-thumb img {
+    display: block;
+    width: 56px;                   /* five of these fit in one row on a 375px phone */
+    height: 56px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.listing-info h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    overflow-wrap: anywhere;
+}
+
+.listing-info h2 {
+    margin: 24px 0 8px;
+    font-size: 1.05rem;
+}
+
+.price {
+    margin: 4px 0 16px;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+/* Label and value side by side: "Condition   Used". */
+.facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 6px 16px;
+    margin: 0;
+}
+
+.facts dt {
+    color: #52606d;
+}
+
+.facts dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.description {
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.badge {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.badge-sold {
+    background: #1f2933;
+    color: #ffffff;
+}
+
+.seller-card {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.seller-card h2 {
+    margin: 0 0 12px;
+}
+
+.seller-card .avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+}
+
+.seller-card .button {
+    margin-top: 16px;
+}
+
+.seller-card .note,
+.seller-name {
+    margin: 0;
+}
+
+.seller-card > .note {
+    margin-top: 12px;
+}
+
+.seller-name {
+    font-weight: 600;
+    overflow-wrap: anywhere;
 }
 
 /* ---------- Account details ---------- */
