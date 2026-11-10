@@ -9,6 +9,7 @@ require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/csrf.php';
 require_once __DIR__ . '/uploads.php';
 require_once __DIR__ . '/listings.php';
+require_once __DIR__ . '/messages.php';
 
 // Show dates and times in the campus's time zone, wherever the server is located.
 // This must run before the first database call, because db() copies the setting.

@@ -22,6 +22,9 @@ A web app where university students buy and sell used items (textbooks, electron
 - Browse page with the newest listings, 12 per page
 - Keyword search on title and description, filters for category, condition and price range, and sorting by newest or price
 - Search and filters update the results without reloading the page, and still work with JavaScript turned off
+- Messaging: a buyer messages the seller from a listing, with one conversation per buyer per listing
+- Inbox with each conversation's latest message and unread count, and an unread badge in the header
+- A conversation can be opened only by its buyer and its seller; anyone else gets "not found"
 
 ## Tech stack
 

@@ -37,6 +37,12 @@ require __DIR__ . '/../includes/header.php';
     </dl>
 
     <a class="button" href="/pages/profile-edit.php">Edit profile</a>
+
+    <?php // Logging out is a form post with a CSRF token, never a plain link. ?>
+    <form method="post" action="/pages/logout.php">
+        <?= csrf_field() ?>
+        <button type="submit" class="button button-secondary">Log out</button>
+    </form>
 </section>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

@@ -43,6 +43,16 @@ $photos = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
 $seller = ['name' => $listing['seller_name'], 'avatar_path' => $listing['seller_avatar_path']];
 
+// If the visitor is a logged-in student who has already messaged the seller about
+// this listing, find that conversation so the page can link to it.
+$myConversationId = null;
+if ($currentUser !== null && !$isOwner) {
+    $stmt = db()->prepare('SELECT id FROM conversations WHERE listing_id = ? AND buyer_id = ?');
+    $stmt->execute([$listing['id'], $currentUser['id']]);
+    $found = $stmt->fetchColumn();
+    $myConversationId = $found !== false ? (int) $found : null;
+}
+
 $pageTitle = $listing['title'];
 require __DIR__ . '/../includes/header.php';
 ?>
@@ -113,18 +123,39 @@ require __DIR__ . '/../includes/header.php';
                     <a href="/pages/listing-edit.php?id=<?= e((string) $listing['id']) ?>">Edit it</a>
                     or manage it in <a href="/pages/my-listings.php">My listings</a>.
                 </p>
-            <?php elseif ($listing['status'] === 'sold'): ?>
-                <p class="note">This item has been sold.</p>
             <?php elseif ($currentUser === null): ?>
-                <?php // Phone numbers are shown to logged-in students only, never to guests. ?>
-                <a class="button" href="/pages/login.php">Log in to contact the seller</a>
-            <?php elseif ($listing['seller_phone'] !== null): ?>
-                <a class="button" href="<?= e(whatsapp_link($listing['seller_phone'])) ?>" target="_blank" rel="noopener">
-                    Message on WhatsApp
-                </a>
-                <p class="note">Or call <a href="tel:<?= e($listing['seller_phone']) ?>"><?= e($listing['seller_phone']) ?></a></p>
+                <?php // Messaging and phone numbers are for logged-in students only, never guests. ?>
+                <?php if ($listing['status'] === 'sold'): ?>
+                    <p class="note">This item has been sold.</p>
+                <?php else: ?>
+                    <a class="button" href="/pages/login.php">Log in to contact the seller</a>
+                <?php endif; ?>
             <?php else: ?>
-                <p class="note">This seller has not added a phone number yet.</p>
+                <?php if ($myConversationId !== null): ?>
+                    <?php // A buyer has one conversation per listing (FR-17), so link to it. ?>
+                    <a class="button" href="/pages/conversation.php?id=<?= e((string) $myConversationId) ?>#latest">
+                        Open your conversation
+                    </a>
+                <?php elseif ($listing['status'] === 'available'): ?>
+                    <form method="post" action="/pages/conversation-start.php" class="message-form">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="listing_id" value="<?= e((string) $listing['id']) ?>">
+
+                        <label for="message-body">Message the seller</label>
+                        <textarea id="message-body" name="body" rows="3" required
+                                  maxlength="<?= MAX_MESSAGE_LENGTH ?>" placeholder="Hi, is this still available?"></textarea>
+                        <button type="submit" class="button">Send message</button>
+                    </form>
+                <?php endif; ?>
+
+                <?php if ($listing['status'] === 'sold'): ?>
+                    <p class="note">This item has been sold.</p>
+                <?php elseif ($listing['seller_phone'] !== null): ?>
+                    <a class="button button-secondary" href="<?= e(whatsapp_link($listing['seller_phone'])) ?>" target="_blank" rel="noopener">
+                        Message on WhatsApp
+                    </a>
+                    <p class="note">Or call <a href="tel:<?= e($listing['seller_phone']) ?>"><?= e($listing['seller_phone']) ?></a></p>
+                <?php endif; ?>
             <?php endif; ?>
         </section>
     </div>

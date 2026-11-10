@@ -99,8 +99,8 @@ require __DIR__ . '/../includes/header.php';
 
     <?php if ($user['phone'] === null): ?>
         <p class="alert alert-info">
-            Buyers contact you on WhatsApp.
-            <a href="/pages/profile-edit.php">Add a phone number to your profile</a> so they can reach you.
+            Buyers can message you on this site.
+            <a href="/pages/profile-edit.php">Add a phone number to your profile</a> if you also want them to reach you on WhatsApp.
         </p>
     <?php endif; ?>
 

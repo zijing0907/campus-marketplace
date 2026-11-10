@@ -22,8 +22,15 @@
         <?php if ($currentUser): ?>
             <a href="/pages/listing-create.php">Sell</a>
             <a href="/pages/my-listings.php">My listings</a>
+            <?php $unreadMessages = unread_message_count((int) $currentUser['id']); ?>
+            <a href="/pages/inbox.php">
+                Inbox<?php if ($unreadMessages > 0): ?>
+                    <span class="count-badge"><?= $unreadMessages ?><span class="visually-hidden"> unread</span></span>
+                <?php endif; ?>
+            </a>
             <a class="nav-user" href="/pages/profile.php"><?= e($currentUser['name']) ?></a>
-            <form method="post" action="/pages/logout.php" class="inline-form">
+            <?php // On a narrow phone this is hidden to save room; the account page has it too. ?>
+            <form method="post" action="/pages/logout.php" class="inline-form nav-logout">
                 <?= csrf_field() ?>
                 <button type="submit" class="link-button">Log out</button>
             </form>
