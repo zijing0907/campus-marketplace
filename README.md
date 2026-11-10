@@ -16,6 +16,9 @@ A web app where university students buy and sell used items (textbooks, electron
 - Sell an item: post a listing with a title, price, category, condition, meetup location and 1 to 5 photos
 - Listing page with a photo gallery and the seller's details
 - A seller's phone number and WhatsApp button are shown to logged-in students only, never to guests
+- My listings: edit a listing and its photos, delete it, or mark it as sold
+- Ownership is checked on the server for every edit, delete and status change, so a student can only change their own listings
+- Marking a listing as sold uses a JSON API called with `fetch`, so the page updates without reloading
 
 ## Tech stack
 

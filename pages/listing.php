@@ -108,7 +108,11 @@ require __DIR__ . '/../includes/header.php';
             </div>
 
             <?php if ($isOwner): ?>
-                <p class="note">This is your listing.</p>
+                <p class="note">
+                    This is your listing.
+                    <a href="/pages/listing-edit.php?id=<?= e((string) $listing['id']) ?>">Edit it</a>
+                    or manage it in <a href="/pages/my-listings.php">My listings</a>.
+                </p>
             <?php elseif ($listing['status'] === 'sold'): ?>
                 <p class="note">This item has been sold.</p>
             <?php elseif ($currentUser === null): ?>

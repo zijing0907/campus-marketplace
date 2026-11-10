@@ -8,6 +8,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php // JavaScript reads the CSRF token from here when it sends a request with fetch(). ?>
+    <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
     <title><?= e($pageTitle ?? 'Campus Marketplace') ?> · Campus Marketplace</title>
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
@@ -15,9 +17,11 @@
 <header class="site-header">
     <a class="brand" href="/">Campus Marketplace</a>
     <nav>
-        <a href="/">Browse</a>
+        <?php // On a narrow phone this link is hidden; the site name above also leads home. ?>
+        <a class="nav-browse" href="/">Browse</a>
         <?php if ($currentUser): ?>
             <a href="/pages/listing-create.php">Sell</a>
+            <a href="/pages/my-listings.php">My listings</a>
             <a class="nav-user" href="/pages/profile.php"><?= e($currentUser['name']) ?></a>
             <form method="post" action="/pages/logout.php" class="inline-form">
                 <?= csrf_field() ?>

@@ -41,8 +41,9 @@ a {
 
 nav {
     display: flex;
+    flex-wrap: wrap;               /* a safety net: links wrap instead of overflowing */
     align-items: center;
-    gap: 16px;
+    gap: 4px 16px;
 }
 
 nav a {
@@ -51,10 +52,25 @@ nav a {
 
 /* A long name is cut off with "..." instead of breaking the header. */
 .nav-user {
-    max-width: 9rem;
+    max-width: 6rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* On a narrow phone there is no room for "Browse"; the site name also leads home. */
+.nav-browse {
+    display: none;
+}
+
+@media (min-width: 520px) {
+    .nav-browse {
+        display: inline;
+    }
+
+    .nav-user {
+        max-width: 9rem;
+    }
 }
 
 .inline-form {
@@ -129,6 +145,23 @@ main {
     border-color: #2563eb;
 }
 
+.button-small {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+}
+
+/* For actions that destroy something, such as Delete. */
+.button-danger {
+    border-color: #b42318;
+    background: #ffffff;
+    color: #b42318;
+}
+
+.button-danger:hover {
+    border-color: #b42318;
+    background: #fef3f2;
+}
+
 /* A button that looks like a link, used for "Log out" (it must be a form post). */
 .link-button {
     padding: 0;
@@ -164,7 +197,9 @@ main {
     margin: 0;
 }
 
-label {
+/* .label is for a heading inside a form that looks like a label but has no single field. */
+label,
+.label {
     display: block;
     margin: 16px 0 4px;
     font-size: 0.95rem;
@@ -447,6 +482,147 @@ a:focus-visible {
 .badge-sold {
     background: #1f2933;
     color: #ffffff;
+}
+
+.badge-available {
+    background: #ecfdf3;
+    color: #067647;
+}
+
+.badge-hidden {
+    background: #fef3f2;
+    color: #b42318;
+}
+
+/* ---------- My listings ---------- */
+
+.page-head {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.page-head h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.empty {
+    padding: 32px 16px;
+    border: 1px dashed #c5ccd3;
+    border-radius: 8px;
+    color: #52606d;
+    text-align: center;
+}
+
+.my-listings {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* Photo on the left, details beside it, actions underneath on a phone. */
+.my-listing {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.my-listing-photo {
+    display: block;
+    width: 72px;
+    height: 72px;
+    border-radius: 6px;
+    background: #e3e6ea;
+    overflow: hidden;
+}
+
+.my-listing-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.my-listing-info {
+    min-width: 0;                  /* lets a long title wrap instead of widening the row */
+}
+
+.my-listing-title {
+    color: #1f2933;
+    font-weight: 600;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.my-listing-title:hover {
+    text-decoration: underline;
+}
+
+.my-listing-info .note {
+    margin: 2px 0 6px;
+}
+
+.my-listing-info .badge {
+    margin-bottom: 0;
+}
+
+.my-listing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    grid-column: 1 / -1;           /* spans the full width, under the photo and details */
+}
+
+.my-listing-actions form {
+    margin: 0;
+}
+
+/* On wider screens the actions sit on the right of the same row. */
+@media (min-width: 760px) {
+    .my-listing {
+        grid-template-columns: 72px 1fr auto;
+        align-items: center;
+    }
+
+    .my-listing-actions {
+        grid-column: auto;
+    }
+}
+
+/* ---------- Current photos on the Edit listing form ---------- */
+
+.edit-photos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.edit-photo {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 400;
+    text-align: center;
+}
+
+.edit-photo img {
+    display: block;
+    width: 84px;
+    height: 84px;
+    margin-bottom: 4px;
+    border: 1px solid #e3e6ea;
+    border-radius: 6px;
+    object-fit: cover;
 }
 
 .seller-card {
