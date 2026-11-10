@@ -1,0 +1,12 @@
+# Real settings and passwords: never commit these
+config/config.php
+.env
+
+# Photos uploaded by users
+uploads/*
+!uploads/.gitkeep
+
+# Editor and system files
+.DS_Store
+.vscode/
+.claude/
