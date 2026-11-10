@@ -13,6 +13,7 @@ PHP 8 (plain PHP, PDO) · MySQL · HTML, CSS, vanilla JavaScript
 | Folder | Contents |
 |---|---|
 | `config/` | Settings such as database credentials |
+| `database/` | `schema.sql`, which creates all the tables |
 | `includes/` | Shared PHP: header, footer, helper functions |
 | `api/` | PHP endpoints that return JSON |
 | `pages/` | The site's pages |
@@ -21,11 +22,18 @@ PHP 8 (plain PHP, PDO) · MySQL · HTML, CSS, vanilla JavaScript
 
 ## Run it locally
 
-1. Copy `config/config.example.php` to `config/config.php` and fill in your database details.
-2. Start PHP's built-in server from the project folder:
+1. Create the database and load the tables:
+
+   ```bash
+   mysql -u root -p -e "CREATE DATABASE campus_marketplace CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+   mysql -u root -p campus_marketplace < database/schema.sql
+   ```
+
+2. Copy `config/config.example.php` to `config/config.php` and fill in your database details.
+3. Start PHP's built-in server from the project folder:
 
    ```bash
    php -S localhost:8000
    ```
 
-3. Open http://localhost:8000 in your browser.
+4. Open http://localhost:8000 in your browser.
