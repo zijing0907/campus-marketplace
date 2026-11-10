@@ -44,6 +44,17 @@ function post_text(string $field, bool $trim = true): string
 }
 
 /**
+ * Read one text value from the address's query string, such as ?q=desk.
+ * Always returns a string, even if the value is missing or sent as an array.
+ */
+function get_text(string $field): string
+{
+    $value = $_GET[$field] ?? '';
+
+    return is_string($value) ? trim($value) : '';
+}
+
+/**
  * Send the browser to another page and stop this script.
  */
 function redirect(string $path): void

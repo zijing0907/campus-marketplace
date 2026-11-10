@@ -19,6 +19,9 @@ A web app where university students buy and sell used items (textbooks, electron
 - My listings: edit a listing and its photos, delete it, or mark it as sold
 - Ownership is checked on the server for every edit, delete and status change, so a student can only change their own listings
 - Marking a listing as sold uses a JSON API called with `fetch`, so the page updates without reloading
+- Browse page with the newest listings, 12 per page
+- Keyword search on title and description, filters for category, condition and price range, and sorting by newest or price
+- Search and filters update the results without reloading the page, and still work with JavaScript turned off
 
 ## Tech stack
 

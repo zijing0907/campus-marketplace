@@ -18,7 +18,9 @@ function api_respond(array $body, int $status): void
 {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
-    echo json_encode($body);
+    // The two flags keep "/" and non-English letters readable instead of
+    // writing them as \/ and \uXXXX codes. Both forms are valid JSON.
+    echo json_encode($body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
 }
 
