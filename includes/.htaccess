@@ -1,0 +1,3 @@
+# Shared PHP code. Pages load these files with "require"; they are not pages
+# themselves, so they are closed to visitors.
+Require all denied

@@ -1,0 +1,3 @@
+# The schema, the demo data and the scripts that load them. These are for the
+# person setting the site up, not for visitors.
+Require all denied

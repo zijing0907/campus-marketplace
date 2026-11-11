@@ -9,4 +9,9 @@ return [
     'db_pass' => '',
     'university_email_domain' => '1utar.my',
     'timezone' => 'Asia/Kuala_Lumpur',
+
+    // true:  show PHP's full error details. Use this on your own computer only.
+    // false: log errors and show visitors a plain "Something went wrong" page.
+    //        A live site must always use false.
+    'debug' => true,
 ];

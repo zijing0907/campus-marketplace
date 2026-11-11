@@ -1,0 +1,17 @@
+# Rules for the Apache web server, which most PHP hosts use.
+# PHP's built-in development server (php -S) ignores .htaccess files, so these
+# rules only take effect once the site is on a real host.
+
+# Do not show a list of files for a folder that has no index page.
+Options -Indexes
+
+# A friendly page for addresses that do not exist, and for folders that are
+# closed to visitors (config, includes, database). Both look the same from
+# outside, so a visitor cannot tell which folders exist.
+ErrorDocument 404 /pages/not-found.php
+ErrorDocument 403 /pages/not-found.php
+
+# Never serve anything whose name starts with a dot, such as .git or .env, in case
+# one is ever uploaded by mistake. (.well-known is allowed: hosts use it to issue
+# HTTPS certificates.)
+RedirectMatch 404 "/\.(?!well-known/)"

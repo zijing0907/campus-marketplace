@@ -1,0 +1,21 @@
+# Uploaded files are data, never programs. Nothing in this folder may run as a
+# script, whatever it is called.
+#
+# The site already saves uploads only as .jpg, .png or .webp (includes/uploads.php).
+# This is a second lock on the same door: even if some other file ended up here,
+# the web server would refuse to serve it.
+
+# Close the folder to everything...
+<FilesMatch ".">
+    Require all denied
+</FilesMatch>
+
+# ...then open it again for the image types the site accepts.
+<FilesMatch "\.(jpe?g|png|webp)$">
+    Require all granted
+</FilesMatch>
+
+# Where PHP runs as part of Apache, switch it off for this folder as well.
+<IfModule php_module>
+    php_flag engine off
+</IfModule>

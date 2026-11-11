@@ -4,6 +4,12 @@
 // It loads the shared code and starts the session, so pages need only this one line.
 
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/errors.php';
+
+// Decide first what happens when something fails, so that even an error in the
+// lines below is handled properly.
+setup_error_handling();
+
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/csrf.php';

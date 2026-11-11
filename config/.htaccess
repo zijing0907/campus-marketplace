@@ -1,0 +1,3 @@
+# Settings and database passwords live here. PHP reads these files from disk;
+# no visitor ever needs to open them in a browser (NFR-05).
+Require all denied

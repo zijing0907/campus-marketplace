@@ -877,6 +877,29 @@ a.stat:hover {
     font-size: 0.85rem;
 }
 
+/* Dashboard: the box for loading or removing the demo data. */
+.demo-box {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.demo-box h2 {
+    margin: 0 0 4px;
+    font-size: 1.05rem;
+}
+
+.demo-box p {
+    margin: 0 0 12px;
+    overflow-wrap: anywhere;
+}
+
+.demo-box form {
+    margin: 0;
+}
+
 /* Users and categories: one row each, details on the left, actions on the right. */
 .admin-list {
     display: grid;

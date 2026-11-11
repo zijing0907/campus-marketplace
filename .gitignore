@@ -2,9 +2,10 @@
 config/config.php
 .env
 
-# Photos uploaded by users
+# Photos uploaded by users. The two files that are kept describe the folder itself.
 uploads/*
 !uploads/.gitkeep
+!uploads/.htaccess
 
 # Editor and system files
 .DS_Store
