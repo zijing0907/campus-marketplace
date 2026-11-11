@@ -15,7 +15,8 @@ if (is_int($id) && $id > 0) {
                 l.meetup_location, l.status, l.created_at,
                 c.name AS category_name,
                 u.name AS seller_name, u.faculty AS seller_faculty,
-                u.phone AS seller_phone, u.avatar_path AS seller_avatar_path
+                u.phone AS seller_phone, u.avatar_path AS seller_avatar_path,
+                u.is_banned AS seller_is_banned
          FROM listings l
          JOIN categories c ON c.id = l.category_id
          JOIN users u ON u.id = l.seller_id
@@ -29,10 +30,17 @@ $isOwner = $listing !== null && $currentUser !== null
     && (int) $currentUser['id'] === (int) $listing['seller_id'];
 $isAdmin = $currentUser !== null && $currentUser['role'] === 'admin';
 
-// A listing hidden by an admin can be seen only by its seller and by admins.
+// Two kinds of listing are kept from the public:
+//   - one hidden by an admin: only its seller and admins can see it
+//   - one whose seller is banned: only admins can see it (the seller cannot log in)
 // Everyone else gets the same page as for a listing that never existed, so the
-// response does not reveal that a hidden listing is there.
-if ($listing === null || ($listing['status'] === 'hidden' && !$isOwner && !$isAdmin)) {
+// response does not reveal that the listing is there.
+$hiddenFromViewer = $listing !== null && (
+    ($listing['status'] === 'hidden' && !$isOwner && !$isAdmin)
+    || ($listing['seller_is_banned'] && !$isAdmin)
+);
+
+if ($listing === null || $hiddenFromViewer) {
     $notFoundMessage = 'This listing does not exist or has been removed.';
     require __DIR__ . '/../includes/not-found.php';
 }
@@ -55,7 +63,7 @@ if ($currentUser !== null && !$isOwner) {
 
 // Any logged-in student except the seller can report a listing (FR-22). If they
 // already have a report waiting for an admin, say so instead of offering the form.
-$canReport = $currentUser !== null && !$isOwner && $listing['status'] !== 'hidden';
+$canReport = $currentUser !== null && !$isOwner && $listing['status'] !== 'hidden' && !$listing['seller_is_banned'];
 $alreadyReported = false;
 if ($canReport) {
     $stmt = db()->prepare("SELECT COUNT(*) FROM reports WHERE listing_id = ? AND reporter_id = ? AND status = 'open'");
@@ -68,7 +76,10 @@ require __DIR__ . '/../includes/header.php';
 ?>
 
 <?php if ($listing['status'] === 'hidden'): ?>
-    <p class="alert alert-info">This listing is hidden. Only you and the admins can see it.</p>
+    <p class="alert alert-info">This listing is hidden. Only its seller and the admins can see it.</p>
+<?php endif; ?>
+<?php if ($listing['seller_is_banned']): ?>
+    <p class="alert alert-info">This seller is banned. Only admins can see this listing.</p>
 <?php endif; ?>
 
 <article class="listing">
@@ -146,7 +157,7 @@ require __DIR__ . '/../includes/header.php';
                     <a class="button" href="/pages/conversation.php?id=<?= e((string) $myConversationId) ?>#latest">
                         Open your conversation
                     </a>
-                <?php elseif ($listing['status'] === 'available'): ?>
+                <?php elseif ($listing['status'] === 'available' && !$listing['seller_is_banned']): ?>
                     <form method="post" action="/pages/conversation-start.php" class="message-form">
                         <?= csrf_field() ?>
                         <input type="hidden" name="listing_id" value="<?= e((string) $listing['id']) ?>">
@@ -160,7 +171,7 @@ require __DIR__ . '/../includes/header.php';
 
                 <?php if ($listing['status'] === 'sold'): ?>
                     <p class="note">This item has been sold.</p>
-                <?php elseif ($listing['seller_phone'] !== null): ?>
+                <?php elseif ($listing['seller_phone'] !== null && !$listing['seller_is_banned']): ?>
                     <a class="button button-secondary" href="<?= e(whatsapp_link($listing['seller_phone'])) ?>" target="_blank" rel="noopener">
                         Message on WhatsApp
                     </a>

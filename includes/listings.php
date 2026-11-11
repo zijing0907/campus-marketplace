@@ -18,6 +18,10 @@ const COUNTRY_CALLING_CODE = '60';
 // How many listings the browse page shows per page (FR-13).
 const LISTINGS_PER_PAGE = 12;
 
+// The catch-all category. It is listed last, it cannot be renamed or removed, and
+// when an admin removes another category its listings are moved here (FR-25).
+const FALLBACK_CATEGORY = 'Others';
+
 // The ways results can be sorted (FR-15): the label shown in the dropdown, and the
 // ORDER BY used for it. A value from the address is only ever used to look up an
 // entry in this list. ORDER BY cannot take a "?" placeholder, so a fixed list of
@@ -33,9 +37,12 @@ const LISTING_SORTS = [
  */
 function all_categories(): array
 {
-    // "name = 'Others'" is 0 for normal categories and 1 for Others, so sorting
-    // by it first pushes Others to the end.
-    return db()->query("SELECT id, name FROM categories ORDER BY name = 'Others', name")->fetchAll();
+    // "name = ?" is 0 for normal categories and 1 for the catch-all one, so sorting
+    // by it first pushes that category to the end.
+    $stmt = db()->prepare('SELECT id, name FROM categories ORDER BY name = ?, name');
+    $stmt->execute([FALLBACK_CATEGORY]);
+
+    return $stmt->fetchAll();
 }
 
 /**
@@ -184,7 +191,9 @@ function search_listings(array $filters): array
     // The WHERE clause is built from fixed pieces of SQL. Every value that came
     // from the user goes into $params and reaches the database through a "?"
     // placeholder, never by being joined into the SQL text (NFR-01).
-    $where = ["l.status = 'available'"];   // sold and hidden listings never appear (FR-09)
+    // Sold and hidden listings never appear (FR-09), and neither do listings
+    // whose seller has been banned (FR-24). "s" is the seller, joined in below.
+    $where = ["l.status = 'available'", 's.is_banned = 0'];
     $params = [];
 
     foreach ($filters['words'] as $word) {
@@ -220,7 +229,7 @@ function search_listings(array $filters): array
     $whereSql = implode(' AND ', $where);
 
     // First count all matches, to know how many pages there are.
-    $stmt = db()->prepare("SELECT COUNT(*) FROM listings l WHERE $whereSql");
+    $stmt = db()->prepare("SELECT COUNT(*) FROM listings l JOIN users s ON s.id = l.seller_id WHERE $whereSql");
     $stmt->execute($params);
     $total = (int) $stmt->fetchColumn();
 
@@ -240,6 +249,7 @@ function search_listings(array $filters): array
                  ORDER BY i.sort_order, i.id
                  LIMIT 1) AS cover_path
          FROM listings l
+         JOIN users s ON s.id = l.seller_id
          JOIN categories c ON c.id = l.category_id
          WHERE $whereSql
          ORDER BY $orderSql

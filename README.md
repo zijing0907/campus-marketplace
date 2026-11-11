@@ -28,6 +28,9 @@ A web app where university students buy and sell used items (textbooks, electron
 - Report a listing with a reason: scam, prohibited item, spam or something else
 - Admin page for open reports: hide the listing or dismiss the report, and restore a listing hidden by mistake
 - Admin pages check the user's role on the server; students get "access denied"
+- Admin dashboard with totals: users, active listings, sold listings and open reports
+- Admin users page: search, ban and unban. A banned user is logged out at once, cannot log in, and their listings disappear for other students
+- Admin categories page: add, rename and remove. Removing a category moves its listings to "Others"
 
 ## Tech stack
 

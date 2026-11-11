@@ -36,7 +36,9 @@ $listingStatusLabels = ['available' => 'Available', 'sold' => 'Sold', 'hidden' =
 $reportStatusLabels = ['resolved' => 'Listing was hidden', 'dismissed' => 'Dismissed'];
 
 $pageTitle = $showHandled ? 'Handled reports' : 'Open reports';
+$adminPage = 'reports';
 require __DIR__ . '/../../includes/header.php';
+require __DIR__ . '/../../includes/admin-nav.php';
 ?>
 
 <div class="page-head">

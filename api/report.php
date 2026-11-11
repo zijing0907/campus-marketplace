@@ -25,12 +25,18 @@ if (mb_strlen($details) > MAX_REPORT_DETAILS) {
     api_error('Details can be at most ' . MAX_REPORT_DETAILS . ' characters.', 400);
 }
 
-$stmt = db()->prepare('SELECT id, seller_id, status FROM listings WHERE id = ?');
+$stmt = db()->prepare(
+    'SELECT l.id, l.seller_id, l.status, u.is_banned AS seller_is_banned
+     FROM listings l
+     JOIN users u ON u.id = l.seller_id
+     WHERE l.id = ?'
+);
 $stmt->execute([$listingId]);
 $listing = $stmt->fetch();
 
-// 404: no such listing. A hidden one is treated the same way, as on its own page.
-if (!$listing || $listing['status'] === 'hidden') {
+// 404: no such listing. A hidden one, or one whose seller is banned, is treated
+// the same way, as on its own page.
+if (!$listing || $listing['status'] === 'hidden' || $listing['seller_is_banned']) {
     api_error('That listing does not exist.', 404);
 }
 

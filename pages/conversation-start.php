@@ -15,13 +15,19 @@ $body = post_text('body');
 
 $listing = null;
 if (is_int($listingId) && $listingId > 0) {
-    $stmt = db()->prepare('SELECT id, seller_id, status FROM listings WHERE id = ?');
+    $stmt = db()->prepare(
+        'SELECT l.id, l.seller_id, l.status, u.is_banned AS seller_is_banned
+         FROM listings l
+         JOIN users u ON u.id = l.seller_id
+         WHERE l.id = ?'
+    );
     $stmt->execute([$listingId]);
     $listing = $stmt->fetch() ?: null;
 }
 
-// A hidden listing is treated like one that does not exist, as on its own page.
-if ($listing === null || $listing['status'] === 'hidden') {
+// A hidden listing, or one whose seller is banned, is treated like one that does
+// not exist, as on its own page.
+if ($listing === null || $listing['status'] === 'hidden' || $listing['seller_is_banned']) {
     set_flash('error', 'That listing does not exist or has been removed.');
     redirect('/');
 }

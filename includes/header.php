@@ -36,7 +36,7 @@ $currentUser = current_user();
                 <?php // Hiding this link from students is only for tidiness. The real
                       // protection is require_admin() at the top of every admin page. ?>
                 <?php $openReports = open_report_count(); ?>
-                <a href="/pages/admin/reports.php">
+                <a href="/pages/admin/dashboard.php">
                     Admin<?php if ($openReports > 0): ?>
                         <span class="count-badge"><?= $openReports ?><span class="visually-hidden"> open reports</span></span>
                     <?php endif; ?>
