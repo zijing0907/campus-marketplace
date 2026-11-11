@@ -1,7 +1,11 @@
 <?php
 // Shared top of every page (NFR-10: no repeated header HTML).
 // A page requires bootstrap.php first, sets $pageTitle, then requires this file.
-// $currentUser comes from bootstrap.php: the logged-in user's row, or null for a guest.
+// $currentUser is the logged-in user's row, or null for a guest. bootstrap.php sets
+// the same variable for pages; it is fetched again here (no extra database query)
+// so this file also works when it is included from inside a function, such as
+// require_admin(), where the page's own variables are out of reach.
+$currentUser = current_user();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,6 +32,16 @@
                     <span class="count-badge"><?= $unreadMessages ?><span class="visually-hidden"> unread</span></span>
                 <?php endif; ?>
             </a>
+            <?php if ($currentUser['role'] === 'admin'): ?>
+                <?php // Hiding this link from students is only for tidiness. The real
+                      // protection is require_admin() at the top of every admin page. ?>
+                <?php $openReports = open_report_count(); ?>
+                <a href="/pages/admin/reports.php">
+                    Admin<?php if ($openReports > 0): ?>
+                        <span class="count-badge"><?= $openReports ?><span class="visually-hidden"> open reports</span></span>
+                    <?php endif; ?>
+                </a>
+            <?php endif; ?>
             <a class="nav-user" href="/pages/profile.php"><?= e($currentUser['name']) ?></a>
             <?php // On a narrow phone this is hidden to save room; the account page has it too. ?>
             <form method="post" action="/pages/logout.php" class="inline-form nav-logout">

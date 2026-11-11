@@ -126,6 +126,25 @@ function require_login(): array
 }
 
 /**
+ * Put this at the top of any page that only admins may open (NFR-04).
+ *
+ * require_login() asks "who are you?". This asks the next question: "are you
+ * allowed here?". A guest is sent to the login page; a logged-in student who is
+ * not an admin gets the "access denied" page with status 403.
+ */
+function require_admin(): array
+{
+    $user = require_login();
+
+    if ($user['role'] !== 'admin') {
+        $forbiddenMessage = 'This page is for admins only.';
+        require __DIR__ . '/forbidden.php';   // prints the page and stops the script
+    }
+
+    return $user;
+}
+
+/**
  * Put this at the top of pages that make no sense once logged in (login, register).
  */
 function require_guest(): void

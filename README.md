@@ -25,6 +25,9 @@ A web app where university students buy and sell used items (textbooks, electron
 - Messaging: a buyer messages the seller from a listing, with one conversation per buyer per listing
 - Inbox with each conversation's latest message and unread count, and an unread badge in the header
 - A conversation can be opened only by its buyer and its seller; anyone else gets "not found"
+- Report a listing with a reason: scam, prohibited item, spam or something else
+- Admin page for open reports: hide the listing or dismiss the report, and restore a listing hidden by mistake
+- Admin pages check the user's role on the server; students get "access denied"
 
 ## Tech stack
 
@@ -59,3 +62,13 @@ PHP 8 (plain PHP, PDO) · MySQL · HTML, CSS, vanilla JavaScript
    ```
 
 4. Open http://localhost:8000 in your browser.
+
+## Make an admin account
+
+Every new account is a student. There is deliberately no page for becoming an admin: an admin is made directly in the database. Register normally, then run this with your own email (in phpMyAdmin's SQL tab, or the `mysql` command):
+
+```sql
+UPDATE users SET role = 'admin' WHERE email = 'you@1utar.my';
+```
+
+Log in again and an **Admin** link appears in the header.

@@ -53,6 +53,16 @@ if ($currentUser !== null && !$isOwner) {
     $myConversationId = $found !== false ? (int) $found : null;
 }
 
+// Any logged-in student except the seller can report a listing (FR-22). If they
+// already have a report waiting for an admin, say so instead of offering the form.
+$canReport = $currentUser !== null && !$isOwner && $listing['status'] !== 'hidden';
+$alreadyReported = false;
+if ($canReport) {
+    $stmt = db()->prepare("SELECT COUNT(*) FROM reports WHERE listing_id = ? AND reporter_id = ? AND status = 'open'");
+    $stmt->execute([$listing['id'], $currentUser['id']]);
+    $alreadyReported = (int) $stmt->fetchColumn() > 0;
+}
+
 $pageTitle = $listing['title'];
 require __DIR__ . '/../includes/header.php';
 ?>
@@ -158,11 +168,43 @@ require __DIR__ . '/../includes/header.php';
                 <?php endif; ?>
             <?php endif; ?>
         </section>
+
+        <?php if ($alreadyReported): ?>
+            <p class="note report-note">You reported this listing. An admin will review it.</p>
+        <?php elseif ($canReport): ?>
+            <?php // Hidden until assets/js/report.js runs, because the form is sent with fetch(). ?>
+            <details id="report-box" class="report-box" hidden>
+                <summary>Report this listing</summary>
+
+                <form id="report-form">
+                    <input type="hidden" name="listing_id" value="<?= e((string) $listing['id']) ?>">
+
+                    <label for="report-reason">Reason</label>
+                    <select id="report-reason" name="reason" required>
+                        <option value="">Choose a reason</option>
+                        <?php foreach (REPORT_REASONS as $value => $label): ?>
+                            <option value="<?= e($value) ?>"><?= e($label) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <label for="report-details">Details <span class="optional">(optional)</span></label>
+                    <textarea id="report-details" name="details" rows="3" maxlength="<?= MAX_REPORT_DETAILS ?>"
+                              placeholder="What is wrong with this listing?"></textarea>
+
+                    <p id="report-message" class="field-error" role="alert" hidden></p>
+                    <button type="submit" class="button button-danger button-small">Send report</button>
+                </form>
+            </details>
+        <?php endif; ?>
     </div>
 </article>
 
 <?php if (count($photos) > 1): ?>
     <script src="/assets/js/gallery.js"></script>
+<?php endif; ?>
+
+<?php if ($canReport && !$alreadyReported): ?>
+    <script src="/assets/js/report.js"></script>
 <?php endif; ?>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

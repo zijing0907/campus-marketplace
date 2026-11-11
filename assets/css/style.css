@@ -815,6 +815,45 @@ a:focus-visible {
     justify-self: end;
 }
 
+/* ---------- Reports ---------- */
+
+.report-note,
+.report-box {
+    margin-top: 16px;
+}
+
+.report-box {
+    font-size: 0.9rem;
+}
+
+.report-box summary {
+    color: #52606d;
+    cursor: pointer;
+}
+
+.report-box form {
+    margin-top: 8px;
+    padding: 4px 16px 16px;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.report-box label,
+.report-box .button {
+    margin-top: 12px;
+}
+
+/* On the admin page: the reason, with the student's own words under it. */
+.report-reason {
+    margin: 6px 0;
+}
+
+.report-details {
+    display: block;
+    overflow-wrap: anywhere;
+}
+
 /* ---------- My listings ---------- */
 
 .page-head {
