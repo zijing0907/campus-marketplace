@@ -443,7 +443,7 @@ a:focus-visible {
 }
 
 .price {
-    margin: 4px 0 16px;
+    margin: 4px 0 12px;
     font-size: 1.5rem;
     font-weight: 700;
 }
@@ -638,6 +638,33 @@ a:focus-visible {
 
 .pagination:empty {
     display: none;
+}
+
+/* ---------- Wishlist ---------- */
+
+.wishlist-button {
+    margin-bottom: 16px;
+}
+
+/* Filled in once the listing is saved. */
+.wishlist-button[aria-pressed="true"] {
+    background: #2563eb;
+    color: #ffffff;
+}
+
+/* On the Saved listings page: a card with its Remove button underneath. */
+.wish-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.wish-item .listing-card {
+    flex: 1;                       /* cards in one row end at the same height */
+}
+
+.listing-card-price .badge {
+    margin: 0 0 0 4px;
 }
 
 /* ---------- Messaging ---------- */

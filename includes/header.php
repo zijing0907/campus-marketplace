@@ -32,6 +32,7 @@ $currentUser = current_user();
                     <span class="count-badge"><?= $unreadMessages ?><span class="visually-hidden"> unread</span></span>
                 <?php endif; ?>
             </a>
+            <a href="/pages/wishlist.php">Saved</a>
             <?php if ($currentUser['role'] === 'admin'): ?>
                 <?php // Hiding this link from students is only for tidiness. The real
                       // protection is require_admin() at the top of every admin page. ?>

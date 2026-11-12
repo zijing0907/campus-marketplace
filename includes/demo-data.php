@@ -55,6 +55,10 @@ const DEMO_MESSAGES = [
     ['seller', 'RM32 and it is yours. Does tomorrow at 3pm work?', 25, false],
 ];
 
+// The listings the demo login has saved, by their position in DEMO_LISTINGS
+// (counting from 0): the study desk and the mini fridge.
+const DEMO_WISHLIST = [1, 6];
+
 /**
  * The email address of a demo account, for example demo.student@1utar.my.
  */
@@ -155,6 +159,12 @@ function load_demo_data(): array
         foreach (DEMO_MESSAGES as [$from, $body, $minutesAgo, $isRead]) {
             $senderId = $from === 'buyer' ? $userIds['student'] : $firstSeller;
             $insertMessage->execute([$conversationId, $senderId, $body, $isRead ? 1 : 0, $minutesAgo]);
+        }
+
+        // The demo login's saved listings.
+        $insertWish = $pdo->prepare('INSERT INTO wishlists (user_id, listing_id) VALUES (?, ?)');
+        foreach (DEMO_WISHLIST as $position) {
+            $insertWish->execute([$userIds['student'], $listingIds[$position]]);
         }
 
         $pdo->commit();

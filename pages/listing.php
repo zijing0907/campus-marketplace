@@ -61,6 +61,18 @@ if ($currentUser !== null && !$isOwner) {
     $myConversationId = $found !== false ? (int) $found : null;
 }
 
+// A logged-in student can save a listing that is not their own (FR-19). The Save
+// button is shown for an item still on sale, or for one they saved earlier, so
+// that they can always take it off their list again.
+$isSaved = false;
+if ($currentUser !== null && !$isOwner) {
+    $stmt = db()->prepare('SELECT COUNT(*) FROM wishlists WHERE user_id = ? AND listing_id = ?');
+    $stmt->execute([$currentUser['id'], $listing['id']]);
+    $isSaved = (int) $stmt->fetchColumn() > 0;
+}
+$canSave = $currentUser !== null && !$isOwner && !$listing['seller_is_banned']
+    && ($isSaved || $listing['status'] === 'available');
+
 // Any logged-in student except the seller can report a listing (FR-22). If they
 // already have a report waiting for an admin, say so instead of offering the form.
 $canReport = $currentUser !== null && !$isOwner && $listing['status'] !== 'hidden' && !$listing['seller_is_banned'];
@@ -107,6 +119,14 @@ require __DIR__ . '/../includes/header.php';
 
         <h1><?= e($listing['title']) ?></h1>
         <p class="price"><?= e(format_price($listing['price'])) ?></p>
+
+        <?php if ($canSave): ?>
+            <?php // Hidden until assets/js/wishlist.js runs, because saving uses fetch(). ?>
+            <button type="button" class="button button-secondary button-small wishlist-button" hidden
+                    data-wishlist-toggle data-listing-id="<?= e((string) $listing['id']) ?>"
+                    aria-pressed="<?= $isSaved ? 'true' : 'false' ?>"><?= $isSaved ? '♥ Saved' : '♡ Save' ?></button>
+            <p id="wishlist-message" class="field-error" role="alert" hidden></p>
+        <?php endif; ?>
 
         <dl class="facts">
             <dt>Condition</dt>
@@ -216,6 +236,10 @@ require __DIR__ . '/../includes/header.php';
 
 <?php if ($canReport && !$alreadyReported): ?>
     <script src="/assets/js/report.js"></script>
+<?php endif; ?>
+
+<?php if ($canSave): ?>
+    <script src="/assets/js/wishlist.js"></script>
 <?php endif; ?>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>
