@@ -19,7 +19,10 @@ require __DIR__ . '/../includes/header.php';
 
 <?php // Both the list and the "no messages" note are always in the page, one of them
       // hidden. assets/js/inbox.js switches them when the first message arrives. ?>
-<p class="empty" id="inbox-empty" <?= $conversations ? 'hidden' : '' ?>>No messages yet. When you message a seller, or a buyer messages you, the conversation appears here.</p>
+<div class="empty" id="inbox-empty" <?= $conversations ? 'hidden' : '' ?>>
+    <p><strong class="empty-title">No messages yet</strong>When you message a seller, or a buyer messages you, the conversation appears here.</p>
+    <a class="button button-secondary" href="/">Browse listings</a>
+</div>
 
 <ul class="inbox" id="inbox-list" data-fingerprint="<?= e(inbox_fingerprint($conversations)) ?>" <?= $conversations ? '' : 'hidden' ?>>
     <?php foreach ($conversations as $conversation): ?>
@@ -38,7 +41,7 @@ require __DIR__ . '/../includes/header.php';
 
                 <span class="inbox-text">
                     <span class="inbox-name">
-                        <?= e($conversation['other_name']) ?>
+                        <span class="inbox-who"><?= e($conversation['other_name']) ?></span>
                         <?php if ($unread > 0): ?>
                             <span class="count-badge"><?= $unread ?> new</span>
                         <?php endif; ?>

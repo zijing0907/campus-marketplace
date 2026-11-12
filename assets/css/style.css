@@ -1,18 +1,69 @@
 /* Base styles. Mobile first: works at 375px, then widens (NFR-08). */
+
+/* The site's colours, corner sizes and shadows, each with a name. The rest of this
+   file uses the names, so changing a value here changes it everywhere. */
+:root {
+    --brand: #2563eb;
+    --brand-dark: #1d4ed8;
+    --brand-deep: #1e40af;
+    --brand-soft: #eff4ff;
+    --brand-soft-strong: #dbe4ff;
+    --brand-line: #c7d7fe;
+    --on-brand: #ffffff;           /* text on top of a brand-coloured background */
+
+    --text: #1f2933;
+    --muted: #52606d;
+    --page: #f5f7fa;               /* behind everything */
+    --surface: #ffffff;            /* cards, forms, the header */
+    --line: #e3e6ea;
+    --line-strong: #c5ccd3;
+
+    --danger: #b42318;
+    --danger-soft: #fef3f2;
+    --danger-line: #fecdca;
+    --success: #067647;
+    --success-soft: #ecfdf3;
+    --success-line: #abefc6;
+    --star: #b45309;
+
+    --radius: 10px;
+    --radius-small: 6px;
+    --shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+    --shadow-raised: 0 8px 20px rgba(16, 24, 40, 0.12);
+}
+
 * {
     box-sizing: border-box;
 }
 
+html {
+    /* The header stays at the top of the screen. A jump to a part of a page, such
+       as #rate, must therefore stop a little lower, or the header would cover it. */
+    scroll-padding-top: 76px;
+}
+
+/* The page is a column: header, content, footer. "flex: 1" on main (further down)
+   lets the content take all spare height, so the footer sits at the bottom of the
+   screen even on a page with little on it. */
 body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
     margin: 0;
     font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     line-height: 1.5;
-    color: #1f2933;
-    background: #f7f8fa;
+    color: var(--text);
+    background: var(--page);
+}
+
+h1,
+h2 {
+    line-height: 1.25;
+    letter-spacing: -0.01em;
 }
 
 a {
-    color: #2563eb;
+    color: var(--brand);
 }
 
 /* The hidden attribute must win even over classes that set "display". */
@@ -22,32 +73,71 @@ a {
 
 /* ---------- Header and navigation ---------- */
 
+/* "sticky" keeps the header at the top of the screen while the page scrolls. */
 .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow);
+}
+
+/* As wide as the page content below it, so the two line up. */
+.header-inner {
     display: flex;
-    flex-wrap: wrap;               /* on a narrow phone the links drop below the name */
-    justify-content: space-between;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 8px 16px;
-    padding: 12px 16px;
-    background: #ffffff;
-    border-bottom: 1px solid #e3e6ea;
+    gap: 8px 12px;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 10px 16px;
 }
 
 .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: auto;            /* pushes everything else to the right-hand side */
+    color: var(--text);
     font-weight: 700;
-    color: #1f2933;
+    letter-spacing: -0.01em;
     text-decoration: none;
 }
 
-.site-header nav {
+.brand-mark {
+    flex-shrink: 0;
+}
+
+.site-nav {
     display: flex;
     flex-wrap: wrap;               /* a safety net: links wrap instead of overflowing */
     align-items: center;
     gap: 4px 16px;
 }
 
-.site-header nav a {
+.site-nav a,
+.site-nav .link-button {
+    color: var(--text);
+    font-weight: 500;
     text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav .link-button:hover {
+    color: var(--brand);
+}
+
+/* The link of the page being shown. header.php adds aria-current to it. */
+.site-nav a[aria-current="page"] {
+    color: var(--brand-dark);
+    font-weight: 700;
+}
+
+/* A button inside the menu keeps a button's colours. */
+.site-nav a.button,
+.site-nav a.button:hover {
+    color: var(--on-brand);
 }
 
 /* A long name is cut off with "..." instead of breaking the header. */
@@ -58,24 +148,22 @@ a {
     white-space: nowrap;
 }
 
-/* On a narrow phone there is no room for "Browse" or "Log out". The site name
-   also leads home, and the account page has its own Log out button. */
+/* A guest on a narrow phone has no room for "Browse" (the site name also leads
+   home) or for "Register" (the home page offers "Create an account"). */
 .nav-browse,
-.nav-logout {
+.nav-register {
     display: none;
+}
+
+@media (min-width: 420px) {
+    .site-nav .nav-register {
+        display: inline-block;
+    }
 }
 
 @media (min-width: 520px) {
     .nav-browse {
         display: inline;
-    }
-
-    .nav-logout {
-        display: block;
-    }
-
-    .nav-user {
-        max-width: 9rem;
     }
 }
 
@@ -83,17 +171,116 @@ a {
     margin: 0;
 }
 
+/* The Menu button and the Inbox shortcut beside it. Both are for phones only, and
+   only once assets/js/nav.js is running: it adds "has-menu" to the header. */
+.nav-quick {
+    display: none;
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* A square button with the three-line "menu" icon. 40px is big enough for a thumb. */
+.nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--line-strong);
+    border-radius: 8px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+}
+
+.nav-toggle[aria-expanded="true"] {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+}
+
+/* Phones and tablets: the links are tucked away behind the Menu button. */
+@media (max-width: 959.98px) {
+    .has-menu .nav-quick {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 6px;
+    }
+
+    .has-menu .site-nav {
+        display: none;
+    }
+
+    /* Open: a list under the header row, one link per line, easy to tap. */
+    .has-menu .site-nav.is-open {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        align-items: stretch;
+        gap: 0;
+        flex-basis: 100%;          /* takes a row of its own */
+        padding-top: 4px;
+        border-top: 1px solid var(--line);
+    }
+
+    .has-menu .site-nav a,
+    .has-menu .site-nav .link-button {
+        display: block;
+        width: 100%;
+        max-width: none;
+        padding: 12px 4px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+    }
+
+    .has-menu .site-nav .nav-browse {
+        display: block;
+    }
+
+    /* The Inbox shortcut beside the Menu button already shows this link. */
+    .has-menu .site-nav #inbox-link {
+        display: none;
+    }
+
+    .has-menu .site-nav a.button {
+        margin: 12px 0 6px;
+        padding: 10px 16px;
+        border: 1px solid var(--brand);
+        text-align: center;
+    }
+}
+
+/* Wide screens: all the links in one row, and no Menu button. 960px is where the
+   longest row (an admin with a long name and unread messages) still fits. */
+@media (min-width: 960px) {
+    .nav-toggle {
+        display: none;
+    }
+
+    .site-nav .nav-sell {
+        margin-left: 4px;
+    }
+}
+
 /* ---------- Page layout ---------- */
 
 main {
+    flex: 1;                       /* takes all spare height; see "body" at the top */
+    width: 100%;
     max-width: 960px;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: 24px 16px 40px;
 }
 
 .note,
 .hint {
-    color: #52606d;
+    color: var(--muted);
     font-size: 0.9rem;
 }
 
@@ -102,10 +289,16 @@ main {
 }
 
 .site-footer {
-    padding: 16px;
-    text-align: center;
-    color: #52606d;
+    padding: 20px 16px;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--muted);
     font-size: 0.85rem;
+    text-align: center;
+}
+
+.site-footer p {
+    margin: 0;
 }
 
 /* ---------- Buttons ---------- */
@@ -113,30 +306,31 @@ main {
 .button {
     display: inline-block;
     padding: 10px 16px;
-    border: 1px solid #2563eb;
-    border-radius: 6px;
-    background: #2563eb;
-    color: #ffffff;
+    border: 1px solid var(--brand);
+    border-radius: 8px;
+    background: var(--brand);
+    color: var(--on-brand);
     font: inherit;
     font-weight: 600;
     text-align: center;
     text-decoration: none;
     cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
 }
 
 .button:hover {
-    background: #1d4ed8;
-    border-color: #1d4ed8;
+    background: var(--brand-dark);
+    border-color: var(--brand-dark);
 }
 
 .button-secondary {
-    background: #ffffff;
-    color: #2563eb;
+    background: var(--surface);
+    color: var(--brand);
 }
 
 .button-secondary:hover {
-    background: #eff4ff;
-    border-color: #2563eb;
+    background: var(--brand-soft);
+    border-color: var(--brand);
 }
 
 .button-small {
@@ -146,14 +340,14 @@ main {
 
 /* For actions that destroy something, such as Delete. */
 .button-danger {
-    border-color: #b42318;
-    background: #ffffff;
-    color: #b42318;
+    border-color: var(--danger);
+    background: var(--surface);
+    color: var(--danger);
 }
 
 .button-danger:hover {
-    border-color: #b42318;
-    background: #fef3f2;
+    border-color: var(--danger);
+    background: var(--danger-soft);
 }
 
 /* A button that looks like a link, used for "Log out" (it must be a form post). */
@@ -161,7 +355,7 @@ main {
     padding: 0;
     border: 0;
     background: none;
-    color: #2563eb;
+    color: var(--brand);
     font: inherit;
     cursor: pointer;
 }
@@ -179,8 +373,8 @@ button:disabled {
     max-width: 420px;
     margin: 0 auto;
     padding: 24px;
-    background: #ffffff;
-    border: 1px solid #e3e6ea;
+    background: var(--surface);
+    border: 1px solid var(--line);
     border-radius: 8px;
 }
 
@@ -208,7 +402,7 @@ label,
 }
 
 .optional {
-    color: #52606d;
+    color: var(--muted);
     font-weight: 400;
 }
 
@@ -221,9 +415,9 @@ select,
 textarea {
     width: 100%;
     padding: 10px 12px;
-    border: 1px solid #c5ccd3;
-    border-radius: 6px;
-    background: #ffffff;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-small);
+    background: var(--surface);
     color: inherit;
     font: inherit;                 /* 16px text also stops phones zooming in on focus */
 }
@@ -252,13 +446,13 @@ textarea:focus-visible,
 .button:focus-visible,
 .link-button:focus-visible,
 a:focus-visible {
-    outline: 2px solid #2563eb;
+    outline: 2px solid var(--brand);
     outline-offset: 2px;
 }
 
 .field-error {
     margin: 4px 0 0;
-    color: #b42318;
+    color: var(--danger);
     font-size: 0.875rem;
 }
 
@@ -284,7 +478,7 @@ a:focus-visible {
     margin: 0 0 16px;
     padding: 12px 16px;
     border: 1px solid;
-    border-radius: 6px;
+    border-radius: var(--radius-small);
 }
 
 .form-card .alert {
@@ -292,21 +486,21 @@ a:focus-visible {
 }
 
 .alert-success {
-    background: #ecfdf3;
-    border-color: #abefc6;
-    color: #067647;
+    background: var(--success-soft);
+    border-color: var(--success-line);
+    color: var(--success);
 }
 
 .alert-error {
-    background: #fef3f2;
-    border-color: #fecdca;
-    color: #b42318;
+    background: var(--danger-soft);
+    border-color: var(--danger-line);
+    color: var(--danger);
 }
 
 .alert-info {
-    background: #eff4ff;
-    border-color: #c7d7fe;
-    color: #1d4ed8;
+    background: var(--brand-soft);
+    border-color: var(--brand-line);
+    color: var(--brand-dark);
 }
 
 /* ---------- Profile photo ---------- */
@@ -317,7 +511,7 @@ a:focus-visible {
     height: 72px;
     border-radius: 50%;
     object-fit: cover;             /* fills the circle without stretching the photo */
-    background: #e3e6ea;
+    background: var(--line);
 }
 
 /* Shown when a user has no photo: a circle with the first letter of their name. */
@@ -325,8 +519,8 @@ a:focus-visible {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #dbe4ff;
-    color: #1d4ed8;
+    background: var(--brand-soft-strong);
+    color: var(--brand-dark);
     font-size: 1.75rem;
     font-weight: 700;
 }
@@ -358,7 +552,7 @@ a:focus-visible {
 }
 
 .muted {
-    color: #52606d;
+    color: var(--muted);
 }
 
 /* ---------- Photo previews on the Sell form ---------- */
@@ -377,8 +571,8 @@ a:focus-visible {
 .photo-preview {
     width: 72px;
     height: 72px;
-    border: 1px solid #e3e6ea;
-    border-radius: 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-small);
     object-fit: cover;
 }
 
@@ -405,9 +599,9 @@ a:focus-visible {
     display: block;
     width: 100%;
     aspect-ratio: 4 / 3;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
     object-fit: contain;           /* the whole photo is visible, never cropped */
 }
 
@@ -421,13 +615,13 @@ a:focus-visible {
 .gallery-thumb {
     padding: 0;
     border: 2px solid transparent;
-    border-radius: 6px;
+    border-radius: var(--radius-small);
     background: none;
     cursor: pointer;
 }
 
 .gallery-thumb[aria-current="true"] {
-    border-color: #2563eb;
+    border-color: var(--brand);
 }
 
 .gallery-thumb img {
@@ -451,7 +645,8 @@ a:focus-visible {
 
 .price {
     margin: 4px 0 12px;
-    font-size: 1.5rem;
+    color: var(--brand-dark);
+    font-size: 1.75rem;
     font-weight: 700;
 }
 
@@ -464,7 +659,7 @@ a:focus-visible {
 }
 
 .facts dt {
-    color: #52606d;
+    color: var(--muted);
 }
 
 .facts dd {
@@ -487,18 +682,18 @@ a:focus-visible {
 }
 
 .badge-sold {
-    background: #1f2933;
-    color: #ffffff;
+    background: var(--text);
+    color: var(--on-brand);
 }
 
 .badge-available {
-    background: #ecfdf3;
-    color: #067647;
+    background: var(--success-soft);
+    color: var(--success);
 }
 
 .badge-hidden {
-    background: #fef3f2;
-    color: #b42318;
+    background: var(--danger-soft);
+    color: var(--danger);
 }
 
 /* ---------- Browse page ---------- */
@@ -513,20 +708,58 @@ a:focus-visible {
     white-space: nowrap;
 }
 
-.browse-head h1 {
-    margin: 0;
-    font-size: 1.75rem;
+/* The coloured band at the top of the home page. */
+.hero {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    padding: 22px 20px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--brand), var(--brand-deep));
+    color: var(--on-brand);
 }
 
-.browse-head .note {
-    margin: 4px 0 16px;
+.hero h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.hero p {
+    max-width: 34rem;
+    margin: 6px 0 0;
+    opacity: 0.92;
+}
+
+/* On the coloured band the button is white instead of blue. */
+.hero .button {
+    border-color: var(--surface);
+    background: var(--surface);
+    color: var(--brand-dark);
+}
+
+.hero .button:hover {
+    border-color: var(--brand-soft);
+    background: var(--brand-soft);
+}
+
+@media (min-width: 760px) {
+    .hero {
+        padding: 32px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
 }
 
 .search-form {
     padding: 16px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 /* The search box grows; the Search button keeps its own width. */
@@ -539,8 +772,8 @@ a:focus-visible {
     flex: 1;
     min-width: 0;
     padding: 10px 12px;
-    border: 1px solid #c5ccd3;
-    border-radius: 6px;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-small);
     font: inherit;
 }
 
@@ -551,28 +784,45 @@ a:focus-visible {
     gap: 0 12px;
 }
 
+/* On a phone the fifth filter would sit alone at half width, so it takes the whole row. */
+.search-filters > div:last-child {
+    grid-column: 1 / -1;
+}
+
 @media (min-width: 760px) {
     .search-filters {
         grid-template-columns: repeat(5, 1fr);
+    }
+
+    .search-filters > div:last-child {
+        grid-column: auto;
     }
 }
 
 .search-filters label {
     margin-top: 12px;
-    color: #52606d;
+    color: var(--muted);
     font-size: 0.85rem;
 }
 
 .results-summary {
     margin: 16px 0 12px;
-    color: #52606d;
+    color: var(--muted);
 }
 
-/* As many cards per row as fit: two on a phone, up to five on a desktop. */
+/* Two cards per row on a phone. On wider screens as many as fit, each at least
+   190px wide: that gives four per row on a desktop. */
 .listing-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
+}
+
+@media (min-width: 560px) {
+    .listing-grid {
+        grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+        gap: 16px;
+    }
 }
 
 /* Faded while new results are on their way. */
@@ -582,23 +832,27 @@ a:focus-visible {
 
 .listing-card {
     display: block;
-    border: 1px solid #e3e6ea;
-    border-radius: 8px;
-    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: var(--surface);
     color: inherit;
     text-decoration: none;
     overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
 }
 
+/* The card lifts a little under the mouse. */
 .listing-card:hover {
-    border-color: #2563eb;
+    border-color: var(--brand-line);
+    box-shadow: var(--shadow-raised);
+    transform: translateY(-2px);
 }
 
 .listing-card-photo {
     display: block;
     width: 100%;
     aspect-ratio: 4 / 3;
-    background: #e3e6ea;
+    background: var(--line);
     object-fit: cover;
 }
 
@@ -623,13 +877,15 @@ a:focus-visible {
 .listing-card-price {
     display: block;
     margin-top: 4px;
+    color: var(--brand-dark);
+    font-size: 1.05rem;
     font-weight: 700;
 }
 
 .listing-card-meta {
     display: block;
     margin-top: 2px;
-    color: #52606d;
+    color: var(--muted);
     font-size: 0.85rem;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -650,7 +906,7 @@ a:focus-visible {
 /* ---------- Ratings and public profiles ---------- */
 
 .stars {
-    color: #b45309;
+    color: var(--star);
     font-size: 1.1rem;
     letter-spacing: 2px;
 }
@@ -661,9 +917,9 @@ a:focus-visible {
 
 .profile-card {
     padding: 16px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .profile-card h1 {
@@ -701,9 +957,9 @@ a:focus-visible {
 
 .review {
     padding: 12px 16px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .review .description {
@@ -746,8 +1002,8 @@ a:focus-visible {
 
 /* Filled in once the listing is saved. */
 .wishlist-button[aria-pressed="true"] {
-    background: #2563eb;
-    color: #ffffff;
+    background: var(--brand);
+    color: var(--on-brand);
 }
 
 /* On the Saved listings page: a card with its Remove button underneath. */
@@ -772,8 +1028,8 @@ a:focus-visible {
     display: inline-block;
     padding: 0 7px;
     border-radius: 999px;
-    background: #b42318;
-    color: #ffffff;
+    background: var(--danger);
+    color: var(--on-brand);
     font-size: 0.75rem;
     font-weight: 700;
     line-height: 1.5;
@@ -802,24 +1058,24 @@ a:focus-visible {
     gap: 12px;
     align-items: center;
     padding: 12px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
     color: inherit;
     text-decoration: none;
 }
 
 .inbox-row:hover {
-    border-color: #2563eb;
+    border-color: var(--brand);
 }
 
 /* A conversation with unread messages stands out. */
 .inbox-row-unread {
-    border-left: 4px solid #2563eb;
+    border-left: 4px solid var(--brand);
 }
 
 .inbox-row-unread .inbox-preview {
-    color: #1f2933;
+    color: var(--text);
     font-weight: 600;
 }
 
@@ -827,8 +1083,8 @@ a:focus-visible {
     display: block;
     width: 56px;
     height: 56px;
-    border-radius: 6px;
-    background: #e3e6ea;
+    border-radius: var(--radius-small);
+    background: var(--line);
     overflow: hidden;
 }
 
@@ -844,7 +1100,6 @@ a:focus-visible {
     min-width: 0;                  /* lets long text be cut off instead of widening the row */
 }
 
-.inbox-name,
 .inbox-listing,
 .inbox-preview {
     display: block;
@@ -853,14 +1108,29 @@ a:focus-visible {
     white-space: nowrap;
 }
 
+/* The name is cut off with "..." if it is long; the "1 new" label beside it never is. */
 .inbox-name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-weight: 600;
+}
+
+.inbox-who {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.inbox-name .count-badge {
+    flex-shrink: 0;
 }
 
 .inbox-listing,
 .inbox-preview,
 .inbox-time {
-    color: #52606d;
+    color: var(--muted);
     font-size: 0.9rem;
 }
 
@@ -908,7 +1178,7 @@ a:focus-visible {
 .message {
     max-width: 80%;
     padding: 8px 12px;
-    border-radius: 12px;
+    border-radius: 14px;
 }
 
 .message p {
@@ -926,14 +1196,16 @@ a:focus-visible {
 /* My messages sit on the right in blue; the other person's on the left in white. */
 .message-mine {
     align-self: flex-end;
-    background: #2563eb;
-    color: #ffffff;
+    border-bottom-right-radius: 4px;   /* the "tail" of the bubble points at its writer */
+    background: var(--brand);
+    color: var(--on-brand);
 }
 
 .message-theirs {
     align-self: flex-start;
-    border: 1px solid #e3e6ea;
-    background: #ffffff;
+    border: 1px solid var(--line);
+    border-bottom-left-radius: 4px;
+    background: var(--surface);
 }
 
 .chat-form {
@@ -951,21 +1223,27 @@ a:focus-visible {
 .admin-nav {
     display: flex;
     flex-wrap: wrap;
-    gap: 4px 20px;
+    gap: 6px;
     margin-bottom: 20px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #e3e6ea;
 }
 
 .admin-nav a {
-    color: #52606d;
+    padding: 6px 14px;
+    border-radius: 999px;
+    color: var(--muted);
+    font-weight: 600;
     text-decoration: none;
+}
+
+.admin-nav a:hover {
+    background: var(--line);
+    color: var(--text);
 }
 
 /* The page being shown. */
 .admin-nav a[aria-current="page"] {
-    color: #1f2933;
-    font-weight: 700;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
 }
 
 /* Dashboard: one box per total. Two per row on a phone, four on a wide screen. */
@@ -978,15 +1256,15 @@ a:focus-visible {
 .stat {
     display: block;
     padding: 16px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
     color: inherit;
     text-decoration: none;
 }
 
 a.stat:hover {
-    border-color: #2563eb;
+    border-color: var(--brand);
 }
 
 .stat-number {
@@ -1003,7 +1281,7 @@ a.stat:hover {
 
 .stat-note {
     display: block;
-    color: #52606d;
+    color: var(--muted);
     font-size: 0.85rem;
 }
 
@@ -1011,9 +1289,9 @@ a.stat:hover {
 .demo-box {
     margin-top: 24px;
     padding: 16px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .demo-box h2 {
@@ -1046,9 +1324,9 @@ a.stat:hover {
     align-items: center;
     gap: 8px 16px;
     padding: 12px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .admin-row-main {
@@ -1107,16 +1385,16 @@ a.stat:hover {
 }
 
 .report-box summary {
-    color: #52606d;
+    color: var(--muted);
     cursor: pointer;
 }
 
 .report-box form {
     margin-top: 8px;
     padding: 4px 16px 16px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .report-box label,
@@ -1150,12 +1428,32 @@ a.stat:hover {
     font-size: 1.5rem;
 }
 
+/* Shown where a list has nothing in it yet. Some have a button that says what to
+   do next. */
 .empty {
-    padding: 32px 16px;
-    border: 1px dashed #c5ccd3;
-    border-radius: 8px;
-    color: #52606d;
+    margin: 0;
+    padding: 36px 16px;
+    border: 1px dashed var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--surface);
+    color: var(--muted);
     text-align: center;
+}
+
+.empty p {
+    margin: 0;
+}
+
+.empty-title {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--text);
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.empty .button {
+    margin-top: 16px;
 }
 
 .my-listings {
@@ -1172,17 +1470,17 @@ a.stat:hover {
     grid-template-columns: 72px 1fr;
     gap: 12px;
     padding: 12px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .my-listing-photo {
     display: block;
     width: 72px;
     height: 72px;
-    border-radius: 6px;
-    background: #e3e6ea;
+    border-radius: var(--radius-small);
+    background: var(--line);
     overflow: hidden;
 }
 
@@ -1198,7 +1496,7 @@ a.stat:hover {
 }
 
 .my-listing-title {
-    color: #1f2933;
+    color: var(--text);
     font-weight: 600;
     text-decoration: none;
     overflow-wrap: anywhere;
@@ -1260,17 +1558,17 @@ a.stat:hover {
     width: 84px;
     height: 84px;
     margin-bottom: 4px;
-    border: 1px solid #e3e6ea;
-    border-radius: 6px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-small);
     object-fit: cover;
 }
 
 .seller-card {
     margin-top: 24px;
     padding: 16px;
-    border: 1px solid #e3e6ea;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #ffffff;
+    background: var(--surface);
 }
 
 .seller-card h2 {
@@ -1309,11 +1607,41 @@ a.stat:hover {
 
 .details dt {
     margin-top: 12px;
-    color: #52606d;
+    color: var(--muted);
     font-size: 0.85rem;
 }
 
 .details dd {
     margin: 0;
     overflow-wrap: anywhere;       /* long emails wrap instead of overflowing */
+}
+
+/* ---------- One look for every box ---------- */
+
+/* Every white box on the site gets the same rounded corners and soft shadow.
+   Listing them once here keeps them the same as each other. */
+.form-card,
+.search-form,
+.listing-card,
+.profile-card,
+.review,
+.inbox-row,
+.stat,
+.demo-box,
+.admin-row,
+.my-listing,
+.seller-card {
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+/* Some people ask their device for less movement. For them nothing slides or fades. */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+    }
+
+    .listing-card:hover {
+        transform: none;
+    }
 }

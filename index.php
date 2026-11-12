@@ -15,9 +15,15 @@ $pageTitle = 'Browse';
 require __DIR__ . '/includes/header.php';
 ?>
 
-<section class="browse-head">
-    <h1>Browse listings</h1>
-    <p class="note">Buy and sell used textbooks, electronics and hostel essentials on campus.</p>
+<section class="hero">
+    <div>
+        <h1>Buy and sell on campus</h1>
+        <p>Used textbooks, electronics and hostel essentials, from students at your university.</p>
+    </div>
+    <?php // A guest is invited to join. A logged-in student already has "Sell an item" in the header. ?>
+    <?php if ($currentUser === null): ?>
+        <a class="button" href="/pages/register.php">Create an account</a>
+    <?php endif; ?>
 </section>
 
 <form id="search-form" class="search-form" method="get" action="/" role="search">

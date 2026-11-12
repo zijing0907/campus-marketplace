@@ -44,36 +44,34 @@ function apiPost(url, fields) {
 }
 
 // Show "count" as the unread number beside "Inbox" in the header, or take the
-// number away when nothing is unread.
+// number away when nothing is unread. The header has two Inbox links (one in the
+// menu, and a shortcut that stays visible on phones), so both are updated.
 function setInboxBadge(count) {
-    const link = document.querySelector('#inbox-link');
-    if (!link) {
-        return;
-    }
+    document.querySelectorAll('[data-inbox-link]').forEach((link) => {
+        let badge = link.querySelector('.count-badge');
 
-    let badge = link.querySelector('.count-badge');
-
-    if (count < 1) {
-        if (badge) {
-            badge.remove();
+        if (count < 1) {
+            if (badge) {
+                badge.remove();
+            }
+            return;
         }
-        return;
-    }
 
-    if (!badge) {
-        badge = document.createElement('span');
-        badge.className = 'count-badge';
-        link.append(' ', badge);
-    }
+        if (!badge) {
+            badge = document.createElement('span');
+            badge.className = 'count-badge';
+            link.append(' ', badge);
+        }
 
-    // The same two parts the PHP header prints: the number for the eye, and the
-    // word "unread" for screen readers.
-    const forScreenReaders = document.createElement('span');
-    forScreenReaders.className = 'visually-hidden';
-    forScreenReaders.textContent = ' unread';
+        // The same two parts the PHP header prints: the number for the eye, and
+        // the word "unread" for screen readers.
+        const forScreenReaders = document.createElement('span');
+        forScreenReaders.className = 'visually-hidden';
+        forScreenReaders.textContent = ' unread';
 
-    badge.textContent = count;
-    badge.append(forScreenReaders);
+        badge.textContent = count;
+        badge.append(forScreenReaders);
+    });
 }
 
 // Call check() again and again for as long as the page is open.

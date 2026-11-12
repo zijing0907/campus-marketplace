@@ -35,9 +35,10 @@ require __DIR__ . '/../includes/header.php';
 </div>
 
 <?php // Shown when the list is empty, including after the last item is removed. ?>
-<p id="wishlist-empty" class="empty" <?= $listings ? 'hidden' : '' ?>>
-    You have not saved anything yet. Use the Save button on a listing to keep it here.
-</p>
+<div id="wishlist-empty" class="empty" <?= $listings ? 'hidden' : '' ?>>
+    <p><strong class="empty-title">Nothing saved yet</strong>You have not saved anything yet. Use the Save button on a listing to keep it here.</p>
+    <a class="button button-secondary" href="/">Browse listings</a>
+</div>
 
 <?php // Filled in by wishlist.js if removing an item fails. ?>
 <p id="wishlist-message" class="alert alert-error" role="alert" hidden></p>

@@ -60,7 +60,10 @@ require __DIR__ . '/../includes/header.php';
 <p id="status-message" class="alert alert-error" role="alert" hidden></p>
 
 <?php if (!$listings): ?>
-    <p class="empty">You have not posted anything yet.</p>
+    <div class="empty">
+        <p><strong class="empty-title">Nothing for sale yet</strong>You have not posted anything yet.</p>
+        <a class="button" href="/pages/listing-create.php">Sell your first item</a>
+    </div>
 <?php else: ?>
     <ul class="my-listings">
         <?php foreach ($listings as $listing): ?>

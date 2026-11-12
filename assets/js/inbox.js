@@ -43,9 +43,10 @@ function buildRow(conversation) {
         photo.append(image);
     }
 
-    const name = makeElement('span', 'inbox-name', conversation.other_name);
+    const name = makeElement('span', 'inbox-name');
+    name.append(makeElement('span', 'inbox-who', conversation.other_name));
     if (unread > 0) {
-        name.append(' ', makeElement('span', 'count-badge', unread + ' new'));
+        name.append(makeElement('span', 'count-badge', unread + ' new'));
     }
 
     const sold = conversation.listing_status === 'sold' ? ' (sold)' : '';
