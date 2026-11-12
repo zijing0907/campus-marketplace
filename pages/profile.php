@@ -3,6 +3,8 @@
 require __DIR__ . '/../includes/bootstrap.php';
 $user = require_login();
 
+$myRating = seller_rating((int) $user['id']);
+
 $pageTitle = 'My account';
 require __DIR__ . '/../includes/header.php';
 ?>
@@ -34,7 +36,14 @@ require __DIR__ . '/../includes/header.php';
                 <span class="muted">Not set</span>
             <?php endif; ?>
         </dd>
+
+        <dt>Rating as a seller</dt>
+        <dd><?= e(rating_summary($myRating)) ?></dd>
     </dl>
+
+    <p class="note">
+        <a href="/pages/user.php?id=<?= e((string) $user['id']) ?>">See your public profile</a>, the page other students see.
+    </p>
 
     <a class="button" href="/pages/profile-edit.php">Edit profile</a>
 

@@ -47,6 +47,16 @@ $messages = $stmt->fetchAll();
 $iAmBuyer = (int) $conversation['buyer_id'] === (int) $user['id'];
 $otherName = $iAmBuyer ? $conversation['seller_name'] : $conversation['buyer_name'];
 
+// If the seller recorded this student as the buyer and they have not rated the
+// seller yet, the page points them to the rating form (FR-20).
+$canRate = false;
+if ($conversation['listing_status'] === 'sold' && $conversation['listing_buyer_id'] !== null
+    && (int) $conversation['listing_buyer_id'] === (int) $user['id']) {
+    $stmt = db()->prepare('SELECT COUNT(*) FROM reviews WHERE listing_id = ? AND reviewer_id = ?');
+    $stmt->execute([$conversation['listing_id'], $user['id']]);
+    $canRate = (int) $stmt->fetchColumn() === 0;
+}
+
 $pageTitle = 'Conversation with ' . $otherName;
 require __DIR__ . '/../includes/header.php';
 ?>
@@ -64,6 +74,13 @@ require __DIR__ . '/../includes/header.php';
                 · <span class="badge badge-sold">Sold</span>
             <?php endif; ?>
         </p>
+
+        <?php if ($canRate): ?>
+            <p class="alert alert-info">
+                You bought this item.
+                <a href="/pages/listing.php?id=<?= e((string) $conversation['listing_id']) ?>#rate">Rate the seller</a>.
+            </p>
+        <?php endif; ?>
     </div>
 
     <ol class="messages">

@@ -29,6 +29,16 @@ if ((int) $listing['seller_id'] !== (int) $user['id']) {
     require __DIR__ . '/../includes/forbidden.php';
 }
 
+// A listing whose buyer has rated the seller cannot be deleted. Deleting it would
+// delete the rating with it, and a seller could then erase any rating they did not
+// like (FR-20).
+$stmt = db()->prepare('SELECT COUNT(*) FROM reviews WHERE listing_id = ?');
+$stmt->execute([$listing['id']]);
+if ((int) $stmt->fetchColumn() > 0) {
+    set_flash('error', 'This listing has a rating from its buyer, so it cannot be deleted.');
+    redirect('/pages/my-listings.php');
+}
+
 // Note the photo files before deleting, because the rows that name them are
 // about to disappear.
 $stmt = db()->prepare('SELECT file_path FROM listing_images WHERE listing_id = ?');

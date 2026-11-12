@@ -55,6 +55,14 @@ const DEMO_MESSAGES = [
     ['seller', 'RM32 and it is yours. Does tomorrow at 3pm work?', 25, false],
 ];
 
+// Sales with a rating, so the demo sellers have something on their profile.
+// Each row: position of the sold listing in DEMO_LISTINGS (counting from 0),
+// the buyer's key, the rating from 1 to 5, the comment, and how many hours ago.
+const DEMO_REVIEWS = [
+    [12, 'student', 5, 'Exactly as described, and Daniel was on time. Would buy from him again.', 150],
+    [13, 'aisyah',  4, 'The book is in great condition. We met a little late, but all fine.', 190],
+];
+
 // The listings the demo login has saved, by their position in DEMO_LISTINGS
 // (counting from 0): the study desk and the mini fridge.
 const DEMO_WISHLIST = [1, 6];
@@ -159,6 +167,19 @@ function load_demo_data(): array
         foreach (DEMO_MESSAGES as [$from, $body, $minutesAgo, $isRead]) {
             $senderId = $from === 'buyer' ? $userIds['student'] : $firstSeller;
             $insertMessage->execute([$conversationId, $senderId, $body, $isRead ? 1 : 0, $minutesAgo]);
+        }
+
+        // Recorded buyers and their ratings (FR-20). The seller is taken from the
+        // listing itself, as it is when a real buyer rates a sale.
+        $setBuyer = $pdo->prepare('UPDATE listings SET buyer_id = ? WHERE id = ?');
+        $insertReview = $pdo->prepare(
+            'INSERT INTO reviews (listing_id, reviewer_id, seller_id, rating, comment, created_at)
+             VALUES (?, ?, ?, ?, ?, NOW() - INTERVAL ? HOUR)'
+        );
+        foreach (DEMO_REVIEWS as [$position, $buyer, $stars, $comment, $hoursAgo]) {
+            $sellerId = $userIds[DEMO_LISTINGS[$position][0]];
+            $setBuyer->execute([$userIds[$buyer], $listingIds[$position]]);
+            $insertReview->execute([$listingIds[$position], $userIds[$buyer], $sellerId, $stars, $comment, $hoursAgo]);
         }
 
         // The demo login's saved listings.

@@ -12,7 +12,7 @@ if (is_int($id) && $id > 0) {
     // by joining the three tables on their ids.
     $stmt = db()->prepare(
         'SELECT l.id, l.seller_id, l.title, l.description, l.price, l.item_condition,
-                l.meetup_location, l.status, l.created_at,
+                l.meetup_location, l.status, l.created_at, l.buyer_id,
                 c.name AS category_name,
                 u.name AS seller_name, u.faculty AS seller_faculty,
                 u.phone AS seller_phone, u.avatar_path AS seller_avatar_path,
@@ -83,6 +83,19 @@ if ($canReport) {
     $alreadyReported = (int) $stmt->fetchColumn() > 0;
 }
 
+// The seller's rating, shown beside their name (FR-10).
+$sellerRating = seller_rating((int) $listing['seller_id']);
+
+// The student recorded as this item's buyer may rate the seller, once (FR-20).
+$isBuyer = $currentUser !== null && $listing['status'] === 'sold'
+    && $listing['buyer_id'] !== null && (int) $listing['buyer_id'] === (int) $currentUser['id'];
+$myReview = null;
+if ($isBuyer) {
+    $stmt = db()->prepare('SELECT rating, comment FROM reviews WHERE listing_id = ? AND reviewer_id = ?');
+    $stmt->execute([$listing['id'], $currentUser['id']]);
+    $myReview = $stmt->fetch() ?: null;
+}
+
 $pageTitle = $listing['title'];
 require __DIR__ . '/../includes/header.php';
 ?>
@@ -151,10 +164,13 @@ require __DIR__ . '/../includes/header.php';
             <div class="profile-head">
                 <?= avatar_html($seller) ?>
                 <div>
-                    <p class="seller-name"><?= e($listing['seller_name']) ?></p>
+                    <p class="seller-name">
+                        <a href="/pages/user.php?id=<?= e((string) $listing['seller_id']) ?>"><?= e($listing['seller_name']) ?></a>
+                    </p>
                     <?php if ($listing['seller_faculty'] !== null): ?>
                         <p class="note"><?= e($listing['seller_faculty']) ?></p>
                     <?php endif; ?>
+                    <p class="note"><?= e(rating_summary($sellerRating)) ?></p>
                 </div>
             </div>
 
@@ -199,6 +215,40 @@ require __DIR__ . '/../includes/header.php';
                 <?php endif; ?>
             <?php endif; ?>
         </section>
+
+        <?php if ($isBuyer): ?>
+            <section id="rate" class="seller-card">
+                <?php if ($myReview !== null): ?>
+                    <h2>Your rating</h2>
+                    <p class="review-stars"><?= stars_html((int) $myReview['rating']) ?></p>
+                    <?php if ($myReview['comment'] !== null): ?>
+                        <p class="description"><?= nl2br(e($myReview['comment'])) ?></p>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <h2>Rate the seller</h2>
+                    <p class="note">You bought this item. How did the sale go?</p>
+
+                    <form method="post" action="/pages/review-create.php" class="message-form">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="listing_id" value="<?= e((string) $listing['id']) ?>">
+
+                        <label for="rating">Rating</label>
+                        <select id="rating" name="rating" required>
+                            <option value="">Choose a rating</option>
+                            <?php foreach (RATING_LABELS as $value => $label): ?>
+                                <option value="<?= $value ?>"><?= e($label) ?></option>
+                            <?php endforeach; ?>
+                        </select>
+
+                        <label for="review-comment">Comment <span class="optional">(optional)</span></label>
+                        <textarea id="review-comment" name="comment" rows="3" maxlength="<?= MAX_REVIEW_COMMENT ?>"
+                                  placeholder="Was the item as described? Was the seller on time?"></textarea>
+
+                        <button type="submit" class="button">Send rating</button>
+                    </form>
+                <?php endif; ?>
+            </section>
+        <?php endif; ?>
 
         <?php if ($alreadyReported): ?>
             <p class="note report-note">You reported this listing. An admin will review it.</p>

@@ -37,6 +37,7 @@ function find_conversation(int $conversationId, int $userId): ?array
     $stmt = db()->prepare(
         'SELECT c.id, c.listing_id, c.buyer_id, c.seller_id,
                 l.title AS listing_title, l.price AS listing_price, l.status AS listing_status,
+                l.buyer_id AS listing_buyer_id,
                 buyer.name AS buyer_name, seller.name AS seller_name
          FROM conversations c
          JOIN listings l ON l.id = c.listing_id

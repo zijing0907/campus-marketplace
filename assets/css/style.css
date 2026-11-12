@@ -640,6 +640,97 @@ a:focus-visible {
     display: none;
 }
 
+/* ---------- Ratings and public profiles ---------- */
+
+.stars {
+    color: #b45309;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+}
+
+.review-stars {
+    margin: 0 0 4px;
+}
+
+.profile-card {
+    padding: 16px;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.profile-card h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    overflow-wrap: anywhere;
+}
+
+.profile-card .note {
+    margin: 2px 0 0;
+}
+
+.profile-card > .note {
+    margin-top: 12px;
+}
+
+.profile-rating {
+    margin: 6px 0 0;
+    font-weight: 600;
+}
+
+/* A heading above a part of a page, such as "For sale" or "Ratings". */
+.section-title {
+    margin: 28px 0 12px;
+    font-size: 1.15rem;
+}
+
+.reviews {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.review {
+    padding: 12px 16px;
+    border: 1px solid #e3e6ea;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.review .description {
+    margin-bottom: 6px;
+}
+
+.review .note {
+    margin: 0;
+}
+
+.seller-name a {
+    color: inherit;
+}
+
+/* My listings: choosing who an item was sold to. */
+.buyer-pick {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 400;
+}
+
+.buyer-pick select {
+    width: auto;
+    padding: 6px 8px;
+}
+
+.sold-to {
+    display: block;
+    margin-top: 4px;
+}
+
 /* ---------- Wishlist ---------- */
 
 .wishlist-button {
@@ -790,6 +881,11 @@ a:focus-visible {
 
 .chat-head .badge {
     margin-bottom: 0;
+}
+
+/* The "Rate the seller" notice sits under the listing line, with a little air. */
+.chat-head .alert {
+    margin: 12px 0 0;
 }
 
 .messages {
