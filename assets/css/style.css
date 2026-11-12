@@ -166,6 +166,13 @@ main {
     cursor: pointer;
 }
 
+/* A button that cannot be pressed right now, for example while its request is
+   still on the way to the server. */
+button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 /* ---------- Forms ---------- */
 
 .form-card {

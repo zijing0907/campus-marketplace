@@ -83,7 +83,14 @@ require __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </div>
 
-    <ol class="messages">
+    <?php
+    // The newest message's id. assets/js/conversation.js starts from it when it
+    // asks the server for anything newer (FR-21).
+    $lastMessageId = $messages ? (int) $messages[count($messages) - 1]['id'] : 0;
+    ?>
+    <?php // aria-live makes screen readers read out a message that arrives later. ?>
+    <ol class="messages" id="messages" aria-live="polite"
+        data-conversation-id="<?= e((string) $conversation['id']) ?>" data-last-id="<?= $lastMessageId ?>">
         <?php foreach ($messages as $message): ?>
             <?php $mine = (int) $message['sender_id'] === (int) $user['id']; ?>
             <li class="message <?= $mine ? 'message-mine' : 'message-theirs' ?>">
@@ -100,12 +107,15 @@ require __DIR__ . '/../includes/header.php';
         <label for="body" class="visually-hidden">Your message</label>
         <textarea id="body" name="body" rows="2" required maxlength="<?= MAX_MESSAGE_LENGTH ?>"
                   placeholder="Write a message"><?= e($body) ?></textarea>
-        <?php if ($error !== null): ?>
-            <p class="field-error"><?= e($error) ?></p>
-        <?php endif; ?>
+        <?php // Always in the page, so that JavaScript has a place to show an error too. ?>
+        <p class="field-error" id="chat-error" role="alert" <?= $error === null ? 'hidden' : '' ?>><?= e($error ?? '') ?></p>
 
         <button type="submit" class="button">Send</button>
     </form>
 </section>
+
+<?php // live.js holds the shared polling code; conversation.js makes this page live with it (FR-21). ?>
+<script src="/assets/js/live.js"></script>
+<script src="/assets/js/conversation.js"></script>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

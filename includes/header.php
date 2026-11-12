@@ -27,7 +27,8 @@ $currentUser = current_user();
             <a href="/pages/listing-create.php">Sell</a>
             <a href="/pages/my-listings.php">My listings</a>
             <?php $unreadMessages = unread_message_count((int) $currentUser['id']); ?>
-            <a href="/pages/inbox.php">
+            <?php // The id lets assets/js/live.js update the unread number without a refresh. ?>
+            <a href="/pages/inbox.php" id="inbox-link">
                 Inbox<?php if ($unreadMessages > 0): ?>
                     <span class="count-badge"><?= $unreadMessages ?><span class="visually-hidden"> unread</span></span>
                 <?php endif; ?>

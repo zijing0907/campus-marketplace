@@ -35,13 +35,15 @@ function api_error(string $message, int $status): void
 }
 
 /**
- * Refuse any request method other than the one this endpoint expects.
+ * Refuse any request method other than the ones this endpoint expects.
+ * Most endpoints expect one: api_require_method('POST'). One that both reads and
+ * writes lists two: api_require_method('GET', 'POST').
  */
-function api_require_method(string $method): void
+function api_require_method(string ...$methods): void
 {
-    if ($_SERVER['REQUEST_METHOD'] !== $method) {
-        header('Allow: ' . $method);
-        api_error('This endpoint only accepts ' . $method . ' requests.', 405);
+    if (!in_array($_SERVER['REQUEST_METHOD'], $methods, true)) {
+        header('Allow: ' . implode(', ', $methods));
+        api_error('This endpoint only accepts ' . implode(' and ', $methods) . ' requests.', 405);
     }
 }
 
