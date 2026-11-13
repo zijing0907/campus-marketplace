@@ -161,6 +161,40 @@ CREATE TABLE IF NOT EXISTS reports (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
+-- Email
+-- ---------------------------------------------------------------------
+
+-- One row for every link emailed to a user, such as "reset your password" (FR-06).
+-- The link contains a long random secret. Only a hash of that secret is stored
+-- here, exactly as only a hash of a password is stored. Someone who could read
+-- this table would still not be able to build a working link.
+CREATE TABLE IF NOT EXISTS user_tokens (
+    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id    INT UNSIGNED NOT NULL,
+    purpose    VARCHAR(30) NOT NULL,              -- what the link is for, e.g. 'password_reset'
+    token_hash CHAR(64) NOT NULL,                 -- SHA-256 of the secret in the link
+    expires_at DATETIME NOT NULL,                 -- the link stops working after this time
+    used_at    DATETIME NULL,                     -- set when the link is used; it works only once
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_user_tokens_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+
+    UNIQUE KEY uq_user_tokens_hash (token_hash),      -- a link is looked up by this
+    KEY idx_user_tokens_user (user_id, purpose)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Emails written while the site runs with 'mail_driver' => 'log' (see config.php).
+-- Nothing is really sent then: the email is saved here so a developer can read it
+-- at /pages/dev-mailbox.php. A live site that sends real email leaves this empty.
+CREATE TABLE IF NOT EXISTS outbox (
+    id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    to_email   VARCHAR(255) NOT NULL,
+    subject    VARCHAR(255) NOT NULL,
+    body       TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
 -- Starting data
 -- ---------------------------------------------------------------------
 

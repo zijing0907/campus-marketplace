@@ -31,22 +31,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['email'] = 'Use your university email ending in @' . $domain . '.';
     }
 
-    // 72 is the longest password the hashing algorithm (bcrypt) can use.
-    if (strlen($password) < 8 || strlen($password) > 72) {
-        $errors['password'] = 'Password must be 8 to 72 characters long.';
-    } elseif ($password !== $passwordConfirm) {
-        $errors['password_confirm'] = 'The two passwords do not match.';
-    }
+    // The same password rules as on the "reset your password" page.
+    $errors += validate_new_password($password, $passwordConfirm);
 
     if (!$errors) {
         try {
             // Only the hash is stored. password_hash() adds a random salt, so two
             // users with the same password still get different hashes.
+            $passwordHash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = db()->prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)');
-            $stmt->execute([$name, $email, password_hash($password, PASSWORD_DEFAULT)]);
+            $stmt->execute([$name, $email, $passwordHash]);
 
             // Until email verification (FR-05) is added, a new account is active at once.
-            login_user((int) db()->lastInsertId());
+            login_user((int) db()->lastInsertId(), $passwordHash);
             set_flash('success', 'Welcome, ' . $name . '! Your account is ready.');
             redirect('/');
         } catch (PDOException $ex) {

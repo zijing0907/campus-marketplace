@@ -44,6 +44,25 @@ function post_text(string $field, bool $trim = true): string
 }
 
 /**
+ * Check a new password and its "type it again" copy. Returns the problems found,
+ * keyed by form field, or an empty array if both are fine.
+ * Used wherever a password is chosen: registering and resetting (FR-01, FR-06).
+ */
+function validate_new_password(string $password, string $passwordConfirm): array
+{
+    // 72 is the longest password the hashing algorithm (bcrypt) can use.
+    if (strlen($password) < 8 || strlen($password) > 72) {
+        return ['password' => 'Password must be 8 to 72 characters long.'];
+    }
+
+    if ($password !== $passwordConfirm) {
+        return ['password_confirm' => 'The two passwords do not match.'];
+    }
+
+    return [];
+}
+
+/**
  * Read one text value from the address's query string, such as ?q=desk.
  * Always returns a string, even if the value is missing or sent as an array.
  */

@@ -1616,6 +1616,39 @@ a.stat:hover {
     overflow-wrap: anywhere;       /* long emails wrap instead of overflowing */
 }
 
+/* ---------- Local mailbox (development only) ---------- */
+
+.mailbox {
+    display: grid;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.mail {
+    padding: 16px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+}
+
+.mail-subject {
+    margin: 0;
+    font-weight: 600;
+}
+
+.mail .note {
+    margin: 2px 0 12px;
+}
+
+/* An email is plain text: keep its line breaks, but wrap long lines such as links. */
+.mail-body {
+    margin: 0;
+    font: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
 /* ---------- One look for every box ---------- */
 
 /* Every white box on the site gets the same rounded corners and soft shadow.
@@ -1630,7 +1663,8 @@ a.stat:hover {
 .demo-box,
 .admin-row,
 .my-listing,
-.seller-card {
+.seller-card,
+.mail {
     border-radius: var(--radius);
     box-shadow: var(--shadow);
 }

@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Checked after the password, so only the account's owner sees this (FR-24).
         $error = 'This account has been suspended. Contact an admin if you think this is a mistake.';
     } else {
-        login_user((int) $user['id']);
+        login_user((int) $user['id'], $user['password_hash']);
         set_flash('success', 'Welcome back, ' . $user['name'] . '!');
         redirect('/');
     }
@@ -57,6 +57,7 @@ require __DIR__ . '/../includes/header.php';
         <button type="submit" class="button">Log in</button>
     </form>
 
+    <p class="form-footer"><a href="/pages/forgot-password.php">Forgot your password?</a></p>
     <p class="form-footer">New here? <a href="/pages/register.php">Create an account</a></p>
 </section>
 

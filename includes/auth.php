@@ -60,7 +60,7 @@ function current_user(): ?array
     }
 
     $stmt = db()->prepare(
-        'SELECT id, name, email, faculty, phone, avatar_path, role, is_verified, is_banned, created_at
+        'SELECT id, name, email, password_hash, faculty, phone, avatar_path, role, is_verified, is_banned, created_at
          FROM users
          WHERE id = ?'
     );
@@ -70,9 +70,26 @@ function current_user(): ?array
     if (!$row) {
         // The account no longer exists.
         logout_user();
-    } elseif ($row['is_banned']) {
+        return null;
+    }
+
+    // The hash is needed only for the check below. It is taken out of the row so
+    // that no page can show it by accident.
+    $passwordMark = password_mark($row['password_hash']);
+    unset($row['password_hash']);
+
+    // A login from before this check existed has no mark yet: give it one.
+    $_SESSION['password_mark'] ??= $passwordMark;
+
+    if ($row['is_banned']) {
         logout_user();
         set_flash('error', 'Your account has been suspended.');
+    } elseif (!hash_equals($_SESSION['password_mark'], $passwordMark)) {
+        // The password was changed after this browser logged in, for example with
+        // a "reset your password" link. Whoever is using this session must log in
+        // again. This is what throws out someone who had stolen the old password.
+        logout_user();
+        set_flash('info', 'Your password was changed. Please log in again.');
     } else {
         $user = $row;
     }
@@ -81,9 +98,23 @@ function current_user(): ?array
 }
 
 /**
- * Mark this browser's session as logged in. Call only after the password is verified.
+ * A short mark that stands for "the password this account has right now".
+ *
+ * login_user() saves it in the session, and current_user() compares it on every
+ * request. When the password changes, the stored hash changes, so the mark no
+ * longer matches and every older login ends. It is a hash of the hash, so the
+ * session never holds anything a password could be worked out from.
  */
-function login_user(int $userId): void
+function password_mark(string $passwordHash): string
+{
+    return hash('sha256', $passwordHash);
+}
+
+/**
+ * Mark this browser's session as logged in. Call only after the password is verified.
+ * $passwordHash is the hash stored for the user; see password_mark() for why.
+ */
+function login_user(int $userId, string $passwordHash): void
 {
     // Give the session a brand-new ID at login. If an attacker somehow planted a
     // session ID in the victim's browser beforehand, it stops working here
@@ -91,6 +122,7 @@ function login_user(int $userId): void
     session_regenerate_id(true);
 
     $_SESSION['user_id'] = $userId;
+    $_SESSION['password_mark'] = password_mark($passwordHash);
 
     // A fresh CSRF token will be created for the logged-in session.
     unset($_SESSION['csrf_token']);
