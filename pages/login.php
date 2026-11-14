@@ -17,12 +17,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    // password_verify() hashes what was typed, using the salt stored inside the
-    // saved hash, and compares the two results. The real password is never stored.
-    if (!$user || !password_verify($password, $user['password_hash'])) {
-        // One message for both "no such email" and "wrong password", so the form
-        // does not confirm which emails have accounts.
-        $error = 'Incorrect email or password.';
+    // Too many wrong passwords lately? Then the password is not even checked, not
+    // even a correct one. That is what makes guessing pointless (see login-limit.php).
+    $wait = login_wait_minutes($email);
+
+    if ($wait > 0) {
+        $error = login_wait_message($wait);
+    } elseif (!$user) {
+        // Checking a password is deliberately slow. Do the same slow work here as
+        // for a real account, so the reply does not come back noticeably faster and
+        // give away that this address has no account.
+        password_hash($password, PASSWORD_DEFAULT);
+        record_failed_login($email);
+        $error = wrong_password_message($email);
+    } elseif (!password_verify($password, $user['password_hash'])) {
+        // password_verify() hashes what was typed, using the salt stored inside the
+        // saved hash, and compares the two results. The real password is never stored.
+        record_failed_login($email);
+        // The same message as above for "no such email", so the form does not
+        // confirm which emails have accounts.
+        $error = wrong_password_message($email);
     } elseif ($user['is_banned']) {
         // Checked after the password, so only the account's owner sees this (FR-24).
         $error = 'This account has been suspended. Contact an admin if you think this is a mistake.';
@@ -32,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $unconfirmed = true;
         $error = 'Confirm your email address first. Open the link we sent to ' . $email . ' when you signed up.';
     } else {
+        clear_failed_logins($email);
         login_user((int) $user['id'], $user['password_hash']);
         set_flash('success', 'Welcome back, ' . $user['name'] . '!');
         redirect('/');

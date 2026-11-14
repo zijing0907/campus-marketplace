@@ -18,12 +18,15 @@ if ($conversation === null) {
 $conversationUrl = '/pages/conversation.php?id=' . $conversation['id'];
 $error = null;
 $body = '';
+$partnerDeleted = conversation_partner_deleted($conversation, (int) $user['id']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
     $body = post_text('body');
-    $error = validate_message($body);
+    $error = $partnerDeleted
+        ? 'This student deleted their account, so they cannot receive messages.'
+        : validate_message($body);
 
     if ($error === null) {
         // The sender is the logged-in user, never a value from the form.
@@ -101,21 +104,28 @@ require __DIR__ . '/../includes/header.php';
         <?php endforeach; ?>
     </ol>
 
-    <form id="latest" class="chat-form" method="post" action="<?= e($conversationUrl) ?>#latest">
-        <?= csrf_field() ?>
+    <?php if ($partnerDeleted): ?>
+        <?php // No form and no live updates: nobody is left on the other side. ?>
+        <p class="alert alert-info" id="latest">This student deleted their account, so you can no longer message them.</p>
+    <?php else: ?>
+        <form id="latest" class="chat-form" method="post" action="<?= e($conversationUrl) ?>#latest">
+            <?= csrf_field() ?>
 
-        <label for="body" class="visually-hidden">Your message</label>
-        <textarea id="body" name="body" rows="2" required maxlength="<?= MAX_MESSAGE_LENGTH ?>"
-                  placeholder="Write a message"><?= e($body) ?></textarea>
-        <?php // Always in the page, so that JavaScript has a place to show an error too. ?>
-        <p class="field-error" id="chat-error" role="alert" <?= $error === null ? 'hidden' : '' ?>><?= e($error ?? '') ?></p>
+            <label for="body" class="visually-hidden">Your message</label>
+            <textarea id="body" name="body" rows="2" required maxlength="<?= MAX_MESSAGE_LENGTH ?>"
+                      placeholder="Write a message"><?= e($body) ?></textarea>
+            <?php // Always in the page, so that JavaScript has a place to show an error too. ?>
+            <p class="field-error" id="chat-error" role="alert" <?= $error === null ? 'hidden' : '' ?>><?= e($error ?? '') ?></p>
 
-        <button type="submit" class="button">Send</button>
-    </form>
+            <button type="submit" class="button">Send</button>
+        </form>
+    <?php endif; ?>
 </section>
 
 <?php // live.js holds the shared polling code; conversation.js makes this page live with it (FR-21). ?>
-<script src="/assets/js/live.js"></script>
-<script src="/assets/js/conversation.js"></script>
+<?php if (!$partnerDeleted): ?>
+    <script src="/assets/js/live.js"></script>
+    <script src="/assets/js/conversation.js"></script>
+<?php endif; ?>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

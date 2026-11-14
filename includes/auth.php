@@ -60,7 +60,7 @@ function current_user(): ?array
     }
 
     $stmt = db()->prepare(
-        'SELECT id, name, email, password_hash, faculty, phone, avatar_path, role, is_verified, is_banned, created_at
+        'SELECT id, name, email, password_hash, faculty, phone, avatar_path, role, is_verified, is_banned, deleted_at, created_at
          FROM users
          WHERE id = ?'
     );
@@ -81,7 +81,12 @@ function current_user(): ?array
     // A login from before this check existed has no mark yet: give it one.
     $_SESSION['password_mark'] ??= $passwordMark;
 
-    if ($row['is_banned']) {
+    if ($row['deleted_at'] !== null) {
+        // Deleted on another device. Checked before the ban, because a deleted
+        // account is also marked as banned (see delete_account()).
+        logout_user();
+        set_flash('info', 'This account has been deleted.');
+    } elseif ($row['is_banned']) {
         logout_user();
         set_flash('error', 'Your account has been suspended.');
     } elseif (email_verification_required() && !$row['is_verified']) {

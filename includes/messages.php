@@ -38,7 +38,8 @@ function find_conversation(int $conversationId, int $userId): ?array
         'SELECT c.id, c.listing_id, c.buyer_id, c.seller_id,
                 l.title AS listing_title, l.price AS listing_price, l.status AS listing_status,
                 l.buyer_id AS listing_buyer_id,
-                buyer.name AS buyer_name, seller.name AS seller_name
+                buyer.name AS buyer_name, seller.name AS seller_name,
+                buyer.deleted_at AS buyer_deleted_at, seller.deleted_at AS seller_deleted_at
          FROM conversations c
          JOIN listings l ON l.id = c.listing_id
          JOIN users buyer ON buyer.id = c.buyer_id
@@ -48,6 +49,17 @@ function find_conversation(int $conversationId, int $userId): ?array
     $stmt->execute([$conversationId, $userId, $userId]);
 
     return $stmt->fetch() ?: null;
+}
+
+/**
+ * Has the other person in this conversation deleted their account?
+ * Then nobody would ever read a new message, so none can be sent.
+ */
+function conversation_partner_deleted(array $conversation, int $userId): bool
+{
+    $iAmBuyer = (int) $conversation['buyer_id'] === $userId;
+
+    return ($iAmBuyer ? $conversation['seller_deleted_at'] : $conversation['buyer_deleted_at']) !== null;
 }
 
 /**

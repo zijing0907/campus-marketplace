@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
     role          ENUM('student', 'admin') NOT NULL DEFAULT 'student',
     is_verified   TINYINT(1) NOT NULL DEFAULT 0,  -- set to 1 after the email link is clicked
     is_banned     TINYINT(1) NOT NULL DEFAULT 0,
+    deleted_at    DATETIME NULL,                  -- set when the student deletes their account
     created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     UNIQUE KEY uq_users_email (email)
@@ -192,6 +193,24 @@ CREATE TABLE IF NOT EXISTS outbox (
     subject    VARCHAR(255) NOT NULL,
     body       TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
+-- Security
+-- ---------------------------------------------------------------------
+
+-- One row per wrong password, kept for a day. Used to pause logins after too many
+-- failures in a row, which stops someone from guessing a password by trying
+-- thousands of them (see includes/login-limit.php).
+CREATE TABLE IF NOT EXISTS login_attempts (
+    id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    email        VARCHAR(255) NOT NULL,           -- the address typed, whether or not it has an account
+    ip           VARCHAR(45) NOT NULL,            -- the visitor's IP address (45 characters fits IPv6)
+    attempted_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    KEY idx_login_attempts_email (email, attempted_at),  -- "recent failures for this address"
+    KEY idx_login_attempts_ip (ip, attempted_at),        -- "recent failures from this computer"
+    KEY idx_login_attempts_time (attempted_at)           -- clearing out old rows
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------

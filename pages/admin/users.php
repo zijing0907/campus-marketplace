@@ -27,7 +27,7 @@ $pages = max(1, (int) ceil($total / USERS_PER_PAGE));
 $page = min($page, $pages);
 
 $stmt = db()->prepare(
-    "SELECT u.id, u.name, u.email, u.role, u.is_verified, u.is_banned, u.created_at,
+    "SELECT u.id, u.name, u.email, u.role, u.is_verified, u.is_banned, u.deleted_at, u.created_at,
             (SELECT COUNT(*) FROM listings l WHERE l.seller_id = u.id) AS listing_count
      FROM users u
      WHERE $whereSql
@@ -84,10 +84,13 @@ require __DIR__ . '/../../includes/admin-nav.php';
                         <?php if ($isAdmin): ?>
                             <span class="badge badge-available">Admin</span>
                         <?php endif; ?>
-                        <?php if ($user['is_banned']): ?>
+                        <?php if ($user['deleted_at'] !== null): ?>
+                            <?php // A deleted account is also marked banned, but saying so would mislead. ?>
+                            <span class="badge badge-sold">Deleted</span>
+                        <?php elseif ($user['is_banned']): ?>
                             <span class="badge badge-hidden">Banned</span>
                         <?php endif; ?>
-                        <?php if (email_verification_required() && !$user['is_verified']): ?>
+                        <?php if ($user['deleted_at'] === null && email_verification_required() && !$user['is_verified']): ?>
                             <span class="badge badge-pending">Email not confirmed</span>
                         <?php endif; ?>
                     </span>
@@ -100,6 +103,8 @@ require __DIR__ . '/../../includes/admin-nav.php';
                 <div class="admin-row-actions">
                     <?php if ($isMe): ?>
                         <span class="note">This is you</span>
+                    <?php elseif ($user['deleted_at'] !== null): ?>
+                        <span class="note">Deleted <?= e(date('j M Y', strtotime($user['deleted_at']))) ?></span>
                     <?php elseif ($isAdmin): ?>
                         <?php // Admins cannot ban each other here, so no admin can lock the others out. ?>
                         <span class="note">Admins cannot be banned</span>

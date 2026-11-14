@@ -47,6 +47,12 @@ require __DIR__ . '/../includes/header.php';
 
     <a class="button" href="/pages/profile-edit.php">Edit profile</a>
 
+    <h2 class="card-subtitle">Security</h2>
+    <ul class="security-links">
+        <li><a href="/pages/password-change.php">Change password</a></li>
+        <li><a class="danger-link" href="/pages/account-delete.php">Delete my account</a></li>
+    </ul>
+
     <?php // Logging out is a form post with a CSRF token, never a plain link. ?>
     <form method="post" action="/pages/logout.php">
         <?= csrf_field() ?>

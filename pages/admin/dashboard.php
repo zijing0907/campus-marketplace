@@ -9,8 +9,8 @@ $demoLoaded = demo_data_loaded();
 // One query returns every total. Each "(SELECT COUNT(*) ...)" is a small query of
 // its own, and the outer SELECT gathers their answers into a single row.
 $totals = db()->query(
-    "SELECT (SELECT COUNT(*) FROM users) AS users,
-            (SELECT COUNT(*) FROM users WHERE is_banned = 1) AS banned_users,
+    "SELECT (SELECT COUNT(*) FROM users WHERE deleted_at IS NULL) AS users,
+            (SELECT COUNT(*) FROM users WHERE is_banned = 1 AND deleted_at IS NULL) AS banned_users,
             (SELECT COUNT(*) FROM listings WHERE status = 'available') AS active_listings,
             (SELECT COUNT(*) FROM listings WHERE status = 'sold') AS sold_listings,
             (SELECT COUNT(*) FROM listings WHERE status = 'hidden') AS hidden_listings,

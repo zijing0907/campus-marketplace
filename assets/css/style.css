@@ -1612,6 +1612,38 @@ a.stat:hover {
 
 /* ---------- Account details ---------- */
 
+/* A small heading inside a card, such as "Security" on the account page. */
+.card-subtitle {
+    margin: 24px 0 4px;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 1rem;
+}
+
+.security-links {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.security-links li {
+    padding: 6px 0;
+}
+
+.danger-link {
+    color: var(--danger);
+}
+
+/* A short list of facts inside a card, such as what deleting an account does. */
+.plain-list {
+    margin: 0 0 12px;
+    padding-left: 20px;
+}
+
+.plain-list li {
+    margin: 2px 0;
+}
+
 .details {
     margin: 16px 0 0;
 }

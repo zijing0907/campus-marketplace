@@ -10,7 +10,7 @@ $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 
 $profile = null;
 if (is_int($id) && $id > 0) {
-    $stmt = db()->prepare('SELECT id, name, faculty, avatar_path, is_banned, created_at FROM users WHERE id = ?');
+    $stmt = db()->prepare('SELECT id, name, faculty, avatar_path, is_banned, deleted_at, created_at FROM users WHERE id = ?');
     $stmt->execute([$id]);
     $profile = $stmt->fetch() ?: null;
 }
@@ -63,7 +63,9 @@ $pageTitle = $profile['name'];
 require __DIR__ . '/../includes/header.php';
 ?>
 
-<?php if ($profile['is_banned']): ?>
+<?php if ($profile['deleted_at'] !== null): ?>
+    <p class="alert alert-info">This student deleted their account. Only admins can see this profile.</p>
+<?php elseif ($profile['is_banned']): ?>
     <p class="alert alert-info">This student is banned. Only admins can see this profile.</p>
 <?php endif; ?>
 

@@ -24,7 +24,7 @@ $backUrl = '/pages/admin/users.php' . ($q !== '' ? '?' . http_build_query(['q' =
 
 $target = null;
 if (is_int($userId) && $userId > 0) {
-    $stmt = db()->prepare('SELECT id, name, role FROM users WHERE id = ?');
+    $stmt = db()->prepare('SELECT id, name, role, deleted_at FROM users WHERE id = ?');
     $stmt->execute([$userId]);
     $target = $stmt->fetch() ?: null;
 }
@@ -42,6 +42,12 @@ if ((int) $target['id'] === (int) $admin['id']) {
 }
 if ($target['role'] === 'admin') {
     set_flash('error', 'An admin cannot be banned.');
+    redirect($backUrl);
+}
+// A deleted account stays marked as banned for good. Unbanning it would bring
+// back an empty account that nobody can log in to.
+if ($target['deleted_at'] !== null) {
+    set_flash('error', 'That account was deleted by its owner.');
     redirect($backUrl);
 }
 

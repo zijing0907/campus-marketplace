@@ -47,6 +47,11 @@ if ($conversation === null) {
 }
 
 if ($sending) {
+    // 403: the request is fine, but nobody is left to receive the message.
+    if (conversation_partner_deleted($conversation, $me)) {
+        api_error('This student deleted their account, so they cannot receive messages.', 403);
+    }
+
     $body = post_text('body');
     $error = validate_message($body);
 
