@@ -461,6 +461,11 @@ a:focus-visible {
     margin-top: 20px;
 }
 
+/* "Send the link again" under the login error. */
+.resend-form .button {
+    margin-top: 12px;
+}
+
 /* A second button directly under another, such as Log out under Edit profile. */
 .form-card form .button-secondary {
     margin-top: 12px;
@@ -694,6 +699,12 @@ a:focus-visible {
 .badge-hidden {
     background: var(--danger-soft);
     color: var(--danger);
+}
+
+/* Waiting for something, such as an email address that is not confirmed yet. */
+.badge-pending {
+    background: #fffaeb;
+    color: var(--star);
 }
 
 /* ---------- Browse page ---------- */

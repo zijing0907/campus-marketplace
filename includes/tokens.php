@@ -16,9 +16,14 @@
 
 // What a link is for. The same token must never work for two different things.
 const TOKEN_PASSWORD_RESET = 'password_reset';
+const TOKEN_EMAIL_VERIFY = 'email_verify';
 
 // How long a password reset link works, in minutes.
 const PASSWORD_RESET_MINUTES = 60;
+
+// How long a "confirm your email" link works, in minutes: one day. Longer than a
+// reset link, because a new student may not check their inbox straight away.
+const EMAIL_VERIFY_MINUTES = 60 * 24;
 
 // A new link is not emailed if the last one is younger than this, in seconds.
 // It stops someone from filling another person's inbox by pressing the button
@@ -101,4 +106,22 @@ function use_user_token(int $tokenId): bool
     $stmt->execute([$tokenId]);
 
     return $stmt->rowCount() === 1;
+}
+
+/**
+ * Email a new student the link that confirms their address (FR-05).
+ * $user needs id, name and email. Any earlier confirmation link stops working.
+ */
+function send_verification_email(array $user): bool
+{
+    $token = create_user_token((int) $user['id'], TOKEN_EMAIL_VERIFY, EMAIL_VERIFY_MINUTES);
+
+    return send_email(
+        $user['email'],
+        'Confirm your Campus Marketplace account',
+        "Hello {$user['name']},\n\n"
+        . "Welcome to Campus Marketplace! To activate your account, open this link within 24 hours:\n\n"
+        . site_url('/pages/verify-email.php?token=' . $token) . "\n\n"
+        . "If you did not create an account, ignore this email and nothing will happen.\n"
+    );
 }

@@ -55,13 +55,8 @@ require __DIR__ . '/../includes/header.php';
            It works for <?= PASSWORD_RESET_MINUTES ?> minutes.</p>
         <p class="note">Nothing after a few minutes? Check the address and <a href="/pages/forgot-password.php">try again</a>.</p>
 
-        <?php if (dev_mailbox_is_open()): ?>
-            <?php // Shown on a developer's own computer only; see dev_mailbox_is_open(). ?>
-            <p class="alert alert-info">
-                Development mode: emails are saved, not sent.
-                <a href="/pages/dev-mailbox.php">Open the local mailbox</a>
-            </p>
-        <?php endif; ?>
+        <?php // Shown on a developer's own computer only; see dev_mailbox_note(). ?>
+        <?= dev_mailbox_note() ?>
 
         <a class="button button-secondary" href="/pages/login.php">Back to log in</a>
     <?php else: ?>

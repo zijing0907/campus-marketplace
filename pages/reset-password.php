@@ -34,7 +34,9 @@ if ($posting && $tokenRow !== null) {
         db()->beginTransaction();
 
         if (use_user_token((int) $tokenRow['id'])) {
-            $stmt = db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
+            // Opening a link that was emailed to the account also proves the
+            // student can read that inbox, so the address counts as confirmed too.
+            $stmt = db()->prepare('UPDATE users SET password_hash = ?, is_verified = 1 WHERE id = ?');
             $stmt->execute([password_hash($password, PASSWORD_DEFAULT), $tokenRow['user_id']]);
             db()->commit();
 

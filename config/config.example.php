@@ -22,6 +22,12 @@ return [
     'mail_driver' => 'log',
     'mail_from' => 'no-reply@example.com',
 
+    // true:  a new account works only after the student opens the link emailed
+    //        to them (FR-05). This needs working email: a live site must use
+    //        'mail_driver' => 'mail', or nobody could ever finish signing up.
+    // false: a new account works at once. Use this if your host cannot send email.
+    'require_email_verification' => true,
+
     // true:  show PHP's full error details. Use this on your own computer only.
     // false: log errors and show visitors a plain "Something went wrong" page.
     //        A live site must always use false.

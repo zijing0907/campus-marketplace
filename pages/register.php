@@ -41,9 +41,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $passwordHash = password_hash($password, PASSWORD_DEFAULT);
             $stmt = db()->prepare('INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)');
             $stmt->execute([$name, $email, $passwordHash]);
+            $userId = (int) db()->lastInsertId();
 
-            // Until email verification (FR-05) is added, a new account is active at once.
-            login_user((int) db()->lastInsertId(), $passwordHash);
+            if (email_verification_required()) {
+                // The account exists but stays inactive until the link in this
+                // email is opened (FR-05). That proves the student can read the
+                // inbox of the university address they typed.
+                send_verification_email(['id' => $userId, 'name' => $name, 'email' => $email]);
+                redirect('/pages/register.php?done=1');
+            }
+
+            // Confirming is switched off in config.php: the account works at once.
+            login_user($userId, $passwordHash);
             set_flash('success', 'Welcome, ' . $name . '! Your account is ready.');
             redirect('/');
         } catch (PDOException $ex) {
@@ -67,9 +76,29 @@ $pageTitle = 'Register';
 require __DIR__ . '/../includes/header.php';
 ?>
 
+<?php if (get_text('done') === '1'): ?>
+    <?php // Shown after a successful sign-up while confirming is switched on. ?>
+    <section class="form-card">
+        <h1>Check your email</h1>
+        <p>Your account is almost ready. We sent a link to your university email.
+           Open it within 24 hours to activate your account, then log in.</p>
+        <p class="note">Nothing there? Look in your spam folder, or
+           <a href="/pages/resend-verification.php">send the link again</a>.</p>
+        <?= dev_mailbox_note() ?>
+        <a class="button button-secondary" href="/pages/login.php">Go to log in</a>
+    </section>
+    <?php require __DIR__ . '/../includes/footer.php'; ?>
+    <?php exit; ?>
+<?php endif; ?>
+
 <section class="form-card">
     <h1>Create your account</h1>
-    <p class="note">For students with an @<?= e($domain) ?> email address.</p>
+    <p class="note">
+        For students with an @<?= e($domain) ?> email address.
+        <?php if (email_verification_required()): ?>
+            We will email you a link to confirm it.
+        <?php endif; ?>
+    </p>
 
     <form method="post" action="/pages/register.php">
         <?= csrf_field() ?>

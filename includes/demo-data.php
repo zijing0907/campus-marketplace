@@ -120,7 +120,9 @@ function load_demo_data(): array
     try {
         // Accounts. The same hashing as real registration, so demo logins work normally.
         $hash = password_hash(DEMO_PASSWORD, PASSWORD_DEFAULT);
-        $insertUser = $pdo->prepare('INSERT INTO users (name, email, password_hash, faculty) VALUES (?, ?, ?, ?)');
+        // is_verified = 1: the demo addresses do not exist, so nobody could open a
+        // confirmation link for them. Visitors must be able to log in straight away.
+        $insertUser = $pdo->prepare('INSERT INTO users (name, email, password_hash, faculty, is_verified) VALUES (?, ?, ?, ?, 1)');
         $userIds = [];
         foreach (DEMO_USERS as $key => $user) {
             $insertUser->execute([$user['name'], demo_email($key), $hash, $user['faculty']]);

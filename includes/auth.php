@@ -84,6 +84,12 @@ function current_user(): ?array
     if ($row['is_banned']) {
         logout_user();
         set_flash('error', 'Your account has been suspended.');
+    } elseif (email_verification_required() && !$row['is_verified']) {
+        // Normally an unconfirmed account cannot log in at all (see login.php). This
+        // covers an account that logged in while confirming was switched off, before
+        // it was switched on. Checked on every request, like a ban (NFR-04).
+        logout_user();
+        set_flash('info', 'Confirm your email address to keep using your account.');
     } elseif (!hash_equals($_SESSION['password_mark'], $passwordMark)) {
         // The password was changed after this browser logged in, for example with
         // a "reset your password" link. Whoever is using this session must log in
@@ -95,6 +101,15 @@ function current_user(): ?array
     }
 
     return $user;
+}
+
+/**
+ * Must a new account confirm its email address before it can be used? (FR-05)
+ * Set by 'require_email_verification' in config.php.
+ */
+function email_verification_required(): bool
+{
+    return (bool) (config()['require_email_verification'] ?? false);
 }
 
 /**

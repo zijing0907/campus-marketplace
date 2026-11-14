@@ -5,6 +5,7 @@ require_guest();
 
 $error = '';
 $email = '';
+$unconfirmed = false;   // true: the password was right, but the email is not confirmed yet
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
@@ -12,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = strtolower(post_text('email'));
     $password = post_text('password', trim: false);
 
-    $stmt = db()->prepare('SELECT id, name, password_hash, is_banned FROM users WHERE email = ?');
+    $stmt = db()->prepare('SELECT id, name, password_hash, is_verified, is_banned FROM users WHERE email = ?');
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -25,6 +26,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif ($user['is_banned']) {
         // Checked after the password, so only the account's owner sees this (FR-24).
         $error = 'This account has been suspended. Contact an admin if you think this is a mistake.';
+    } elseif (email_verification_required() && !$user['is_verified']) {
+        // Also checked after the password, so a stranger cannot use this message
+        // to find out which addresses have signed up (FR-05).
+        $unconfirmed = true;
+        $error = 'Confirm your email address first. Open the link we sent to ' . $email . ' when you signed up.';
     } else {
         login_user((int) $user['id'], $user['password_hash']);
         set_flash('success', 'Welcome back, ' . $user['name'] . '!');
@@ -41,6 +47,15 @@ require __DIR__ . '/../includes/header.php';
 
     <?php if ($error !== ''): ?>
         <p class="alert alert-error"><?= e($error) ?></p>
+    <?php endif; ?>
+
+    <?php if ($unconfirmed): ?>
+        <?php // One click to get a fresh link, without typing the address again. ?>
+        <form method="post" action="/pages/resend-verification.php" class="resend-form">
+            <?= csrf_field() ?>
+            <input type="hidden" name="email" value="<?= e($email) ?>">
+            <button type="submit" class="button button-secondary">Send the link again</button>
+        </form>
     <?php endif; ?>
 
     <form method="post" action="/pages/login.php">

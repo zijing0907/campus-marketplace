@@ -52,6 +52,21 @@ function dev_mailbox_is_open(): bool
 }
 
 /**
+ * On a developer's own computer, a note that the email was saved instead of sent,
+ * with a link to read it. Everywhere else, nothing. Shown after any page that
+ * "sends" an email, so the developer can carry on without a real inbox.
+ */
+function dev_mailbox_note(): string
+{
+    if (!dev_mailbox_is_open()) {
+        return '';
+    }
+
+    return '<p class="alert alert-info">Development mode: emails are saved, not sent. '
+        . '<a href="/pages/dev-mailbox.php">Open the local mailbox</a></p>';
+}
+
+/**
  * The full address of a page on this site, for use inside an email.
  * site_url('/pages/login.php') gives "http://localhost:8000/pages/login.php".
  *

@@ -27,7 +27,7 @@ $pages = max(1, (int) ceil($total / USERS_PER_PAGE));
 $page = min($page, $pages);
 
 $stmt = db()->prepare(
-    "SELECT u.id, u.name, u.email, u.role, u.is_banned, u.created_at,
+    "SELECT u.id, u.name, u.email, u.role, u.is_verified, u.is_banned, u.created_at,
             (SELECT COUNT(*) FROM listings l WHERE l.seller_id = u.id) AS listing_count
      FROM users u
      WHERE $whereSql
@@ -86,6 +86,9 @@ require __DIR__ . '/../../includes/admin-nav.php';
                         <?php endif; ?>
                         <?php if ($user['is_banned']): ?>
                             <span class="badge badge-hidden">Banned</span>
+                        <?php endif; ?>
+                        <?php if (email_verification_required() && !$user['is_verified']): ?>
+                            <span class="badge badge-pending">Email not confirmed</span>
                         <?php endif; ?>
                     </span>
                     <span class="note">
