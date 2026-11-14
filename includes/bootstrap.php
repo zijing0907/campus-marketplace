@@ -18,6 +18,7 @@ require_once __DIR__ . '/listings.php';
 require_once __DIR__ . '/messages.php';
 require_once __DIR__ . '/reports.php';
 require_once __DIR__ . '/reviews.php';
+require_once __DIR__ . '/notifications.php';
 require_once __DIR__ . '/mail.php';
 require_once __DIR__ . '/tokens.php';
 require_once __DIR__ . '/login-limit.php';

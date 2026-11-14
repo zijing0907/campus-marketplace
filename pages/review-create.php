@@ -52,6 +52,9 @@ try {
         'INSERT INTO reviews (listing_id, reviewer_id, seller_id, rating, comment) VALUES (?, ?, ?, ?, ?)'
     );
     $stmt->execute([$listing['id'], $user['id'], $listing['seller_id'], (int) $rating, $comment !== '' ? $comment : null]);
+
+    // Tell the seller. The stars go in "detail", so the bell can say how many.
+    notify((int) $listing['seller_id'], NOTE_REVIEW_RECEIVED, (int) $user['id'], (int) $listing['id'], (string) (int) $rating);
 } catch (PDOException $ex) {
     // Error 1062: UNIQUE (listing_id, reviewer_id) refused a second rating of the
     // same sale by the same buyer.

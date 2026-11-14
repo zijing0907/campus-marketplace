@@ -8,7 +8,7 @@ $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 $listing = null;
 if (is_int($id) && $id > 0) {
     $stmt = db()->prepare(
-        'SELECT id, seller_id, category_id, title, description, price, item_condition, meetup_location
+        'SELECT id, seller_id, category_id, title, description, price, item_condition, meetup_location, status
          FROM listings
          WHERE id = ?'
     );
@@ -142,6 +142,13 @@ if (upload_exceeded_post_limit()) {
         // files deleted from disk.
         foreach ($removedPhotos as $photo) {
             delete_uploaded_file($photo['file_path']);
+        }
+
+        // Cheaper than before, and still for sale? Tell everyone who saved it.
+        // Prices are compared as numbers: "70.00" < "85.00".
+        if ($listing['status'] === 'available' && (float) $data['price'] < (float) $listing['price']) {
+            notify_savers((int) $listing['id'], NOTE_SAVED_PRICE_DROP, [(int) $user['id']],
+                number_format((float) $listing['price'], 2, '.', '') . '|' . number_format((float) $data['price'], 2, '.', ''));
         }
 
         set_flash('success', 'Your listing has been updated.');

@@ -38,6 +38,8 @@ if ($action === 'hide') {
     try {
         $stmt = $pdo->prepare("UPDATE listings SET status = 'hidden' WHERE id = ?");
         $stmt->execute([$report['listing_id']]);
+        // rowCount() is 0 if it was hidden already; then the seller already knows.
+        $nowHidden = $stmt->rowCount() > 0;
 
         // Other students may have reported the same listing. Those reports are
         // answered by this decision too.
@@ -49,6 +51,11 @@ if ($action === 'hide') {
     } catch (Throwable $ex) {
         $pdo->rollBack();
         throw $ex;
+    }
+
+    // Tell the seller why their listing disappeared. Who reported it stays private.
+    if ($nowHidden) {
+        notify(listing_seller_id((int) $report['listing_id']), NOTE_LISTING_HIDDEN, null, (int) $report['listing_id']);
     }
 
     set_flash('success', 'The listing is now hidden. Reports closed: ' . $closed . '.');
@@ -67,6 +74,10 @@ if ($action === 'dismiss') {
 if ($action === 'restore') {
     $stmt = db()->prepare("UPDATE listings SET status = 'available' WHERE id = ? AND status = 'hidden'");
     $stmt->execute([$report['listing_id']]);
+
+    if ($stmt->rowCount() > 0) {
+        notify(listing_seller_id((int) $report['listing_id']), NOTE_LISTING_RESTORED, null, (int) $report['listing_id']);
+    }
 
     set_flash('success', 'The listing is available again.');
     redirect('/pages/admin/reports.php?view=handled');

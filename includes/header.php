@@ -31,10 +31,18 @@ $current = static fn (string ...$pages): string => in_array($here, $pages, true)
 // below: in the menu, and as a shortcut that stays visible on phones.
 // assets/js/live.js keeps both up to date without a refresh.
 $unreadBadge = '';
+// The same for the bell: how many notifications are new.
+$notificationBadge = '';
+$unreadNotifications = 0;
 if ($currentUser) {
     $unreadMessages = unread_message_count((int) $currentUser['id']);
     if ($unreadMessages > 0) {
         $unreadBadge = ' <span class="count-badge">' . $unreadMessages . '<span class="visually-hidden"> unread</span></span>';
+    }
+
+    $unreadNotifications = unread_notification_count((int) $currentUser['id']);
+    if ($unreadNotifications > 0) {
+        $notificationBadge = ' <span class="count-badge">' . $unreadNotifications . '<span class="visually-hidden"> new</span></span>';
     }
 }
 ?>
@@ -68,6 +76,10 @@ if ($currentUser) {
                     <path d="M3 5h14M3 10h14M3 15h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 </svg>
                 <span class="visually-hidden">Menu</span>
+                <?php // A red dot while there are new notifications, which on a phone are inside the menu. ?>
+                <span class="nav-toggle-dot" data-notification-dot <?= $unreadNotifications > 0 ? '' : 'hidden' ?>>
+                    <span class="visually-hidden">(new notifications)</span>
+                </span>
             </button>
         <?php endif; ?>
 
@@ -78,6 +90,14 @@ if ($currentUser) {
                 <a href="/pages/my-listings.php"<?= $current('/pages/my-listings.php', '/pages/listing-edit.php') ?>>My listings</a>
                 <?php // The id is the one live.js has always used; data-inbox-link marks both Inbox links. ?>
                 <a href="/pages/inbox.php" id="inbox-link" data-inbox-link<?= $current('/pages/inbox.php', '/pages/conversation.php') ?>>Inbox<?= $unreadBadge ?></a>
+                <?php // The bell. On a wide screen only the icon shows; in the phone menu the word does too. ?>
+                <a class="nav-bell" href="/pages/notifications.php" data-notification-link<?= $current('/pages/notifications.php') ?>>
+                    <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                        <path d="M6 16v-5a6 6 0 0 1 12 0v5l2 2H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M10 21a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="nav-bell-label">Notifications</span><?= $notificationBadge ?>
+                </a>
                 <a href="/pages/wishlist.php"<?= $current('/pages/wishlist.php') ?>>Saved</a>
                 <?php if ($currentUser['role'] === 'admin'): ?>
                     <?php // Hiding this link from students is only for tidiness. The real
@@ -107,6 +127,11 @@ if ($currentUser) {
 </header>
 <?php // Loaded right here, before the page below is drawn, so the phone menu never flashes open. ?>
 <script src="/assets/js/nav.js"></script>
+<?php if ($currentUser): ?>
+    <?php // The shared code for anything that updates without a refresh (FR-21). Loaded
+          // here, before the page, because the inbox and conversation pages use it. ?>
+    <script src="/assets/js/live.js"></script>
+<?php endif; ?>
 <main>
 <?php if ($flash = take_flash()): ?>
     <p class="alert alert-<?= e($flash['type']) ?>"><?= e($flash['message']) ?></p>

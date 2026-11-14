@@ -101,7 +101,7 @@ require __DIR__ . '/../includes/header.php';
     </div>
 <?php endif; ?>
 
-<h2 class="section-title">Ratings (<?= count($reviews) ?>)</h2>
+<h2 class="section-title" id="ratings">Ratings (<?= count($reviews) ?>)</h2>
 <?php if (!$reviews): ?>
     <p class="empty">No ratings yet. A rating appears here after a buyer rates a sale.</p>
 <?php else: ?>

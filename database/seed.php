@@ -17,6 +17,7 @@ require __DIR__ . '/../includes/functions.php';
 require __DIR__ . '/../includes/db.php';
 require __DIR__ . '/../includes/uploads.php';
 require __DIR__ . '/../includes/listings.php';
+require __DIR__ . '/../includes/notifications.php';
 require __DIR__ . '/../includes/demo-data.php';
 
 // The same time zone as the website, so "posted 3 hours ago" means the same thing.

@@ -122,9 +122,8 @@ require __DIR__ . '/../includes/header.php';
     <?php endif; ?>
 </section>
 
-<?php // live.js holds the shared polling code; conversation.js makes this page live with it (FR-21). ?>
+<?php // conversation.js makes this page live, using the polling code in live.js, which the header loads (FR-21). ?>
 <?php if (!$partnerDeleted): ?>
-    <script src="/assets/js/live.js"></script>
     <script src="/assets/js/conversation.js"></script>
 <?php endif; ?>
 

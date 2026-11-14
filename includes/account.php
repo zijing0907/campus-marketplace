@@ -108,7 +108,7 @@ function delete_account(int $userId): void
             $stmt->execute($listingIds);
         }
 
-        foreach (['wishlists', 'user_tokens'] as $table) {
+        foreach (['wishlists', 'user_tokens', 'notifications'] as $table) {
             $stmt = $pdo->prepare("DELETE FROM $table WHERE user_id = ?");
             $stmt->execute([$userId]);
         }

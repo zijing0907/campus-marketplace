@@ -162,6 +162,32 @@ CREATE TABLE IF NOT EXISTS reports (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
+-- Notifications
+-- ---------------------------------------------------------------------
+
+-- One row per thing that happened to a student, shown behind the bell in the
+-- header: "Ben rated you 5 out of 5", "a listing you saved dropped in price".
+-- The text is not stored. It is written when the page is shown, from the type,
+-- the person and the listing, so a name that changes later (or becomes "Deleted
+-- user") is always shown as it is now.
+CREATE TABLE IF NOT EXISTS notifications (
+    id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id     INT UNSIGNED NOT NULL,            -- who it is for
+    type        VARCHAR(30) NOT NULL,             -- what happened, e.g. 'review_received'
+    actor_id    INT UNSIGNED NULL,                -- who did it, if it was a student
+    listing_id  INT UNSIGNED NULL,                -- which listing it is about
+    detail      VARCHAR(100) NULL,                -- a little extra, such as the stars of a rating
+    is_read     TINYINT(1) NOT NULL DEFAULT 0,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_notifications_user    FOREIGN KEY (user_id)    REFERENCES users (id)    ON DELETE CASCADE,
+    CONSTRAINT fk_notifications_actor   FOREIGN KEY (actor_id)   REFERENCES users (id)    ON DELETE SET NULL,
+    CONSTRAINT fk_notifications_listing FOREIGN KEY (listing_id) REFERENCES listings (id) ON DELETE CASCADE,
+
+    KEY idx_notifications_user (user_id, is_read, id)  -- "my unread ones" and "my newest ones"
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------
 -- Email
 -- ---------------------------------------------------------------------
 

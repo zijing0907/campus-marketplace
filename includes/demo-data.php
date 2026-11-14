@@ -190,6 +190,15 @@ function load_demo_data(): array
             $insertWish->execute([$userIds['student'], $listingIds[$position]]);
         }
 
+        // The notifications those ratings and saves would have caused, so a visitor
+        // who logs in as a demo seller finds something behind the bell.
+        foreach (DEMO_REVIEWS as [$position, $buyer, $stars]) {
+            notify($userIds[DEMO_LISTINGS[$position][0]], NOTE_REVIEW_RECEIVED, $userIds[$buyer], $listingIds[$position], (string) $stars);
+        }
+        foreach (DEMO_WISHLIST as $position) {
+            notify_listing_saved($userIds[DEMO_LISTINGS[$position][0]], $userIds['student'], $listingIds[$position]);
+        }
+
         $pdo->commit();
     } catch (Throwable $ex) {
         $pdo->rollBack();

@@ -43,11 +43,11 @@ function apiPost(url, fields) {
     return apiRequest(url, { method: 'POST', body: body });
 }
 
-// Show "count" as the unread number beside "Inbox" in the header, or take the
-// number away when nothing is unread. The header has two Inbox links (one in the
-// menu, and a shortcut that stays visible on phones), so both are updated.
-function setInboxBadge(count) {
-    document.querySelectorAll('[data-inbox-link]').forEach((link) => {
+// Show "count" in the small red pill on every link that matches "selector", or
+// take the pill away when the count is 0. "words" is what screen readers hear
+// after the number, such as " unread".
+function setCountBadge(selector, count, words) {
+    document.querySelectorAll(selector).forEach((link) => {
         let badge = link.querySelector('.count-badge');
 
         if (count < 1) {
@@ -64,14 +64,30 @@ function setInboxBadge(count) {
         }
 
         // The same two parts the PHP header prints: the number for the eye, and
-        // the word "unread" for screen readers.
+        // the words for screen readers.
         const forScreenReaders = document.createElement('span');
         forScreenReaders.className = 'visually-hidden';
-        forScreenReaders.textContent = ' unread';
+        forScreenReaders.textContent = words;
 
         badge.textContent = count;
         badge.append(forScreenReaders);
     });
+}
+
+// The number beside "Inbox". The header has two Inbox links (one in the menu,
+// and a shortcut that stays visible on phones), so both are updated.
+function setInboxBadge(count) {
+    setCountBadge('[data-inbox-link]', count, ' unread');
+}
+
+// The number on the bell, and the red dot on the phone's Menu button.
+function setNotificationBadge(count) {
+    setCountBadge('[data-notification-link]', count, ' new');
+
+    const dot = document.querySelector('[data-notification-dot]');
+    if (dot) {
+        dot.hidden = count < 1;
+    }
 }
 
 // Call check() again and again for as long as the page is open.
@@ -83,15 +99,16 @@ function setInboxBadge(count) {
 //   1. The next round is planned only after the last one has finished
 //      (setTimeout, not setInterval), so slow replies can never pile up.
 //   2. While nothing new arrives, the wait grows step by step from 3 seconds to
-//      15. Anything new brings it straight back to 3.
+//      15 (or whatever "options" asks for). Anything new brings it straight back.
 //   3. While the tab is in the background nothing is asked at all. The moment
 //      the user comes back, one round runs at once.
 //
 // Returns an object with two functions: now() runs a round immediately, and
 // stop() ends the polling for good.
-function startPolling(check) {
-    const SHORTEST_WAIT = 3000;   // milliseconds
-    const LONGEST_WAIT = 15000;
+function startPolling(check, options = {}) {
+    // In milliseconds. A page can ask for slower polling, as badges.js does.
+    const SHORTEST_WAIT = options.shortestWait ?? 3000;
+    const LONGEST_WAIT = options.longestWait ?? 15000;
 
     let wait = SHORTEST_WAIT;
     let timer = null;       // the planned next round, if there is one

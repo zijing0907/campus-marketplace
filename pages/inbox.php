@@ -59,8 +59,7 @@ require __DIR__ . '/../includes/header.php';
     <?php endforeach; ?>
 </ul>
 
-<?php // live.js holds the shared polling code; inbox.js redraws this list with it (FR-21). ?>
-<script src="/assets/js/live.js"></script>
+<?php // inbox.js redraws this list using the polling code in live.js, which the header loads (FR-21). ?>
 <script src="/assets/js/inbox.js"></script>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

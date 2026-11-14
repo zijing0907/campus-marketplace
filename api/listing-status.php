@@ -25,7 +25,7 @@ if ($buyer !== '' && !ctype_digit($buyer)) {
     api_error('The buyer is not valid.', 400);
 }
 
-$stmt = db()->prepare('SELECT id, seller_id, status FROM listings WHERE id = ?');
+$stmt = db()->prepare('SELECT id, seller_id, status, buyer_id FROM listings WHERE id = ?');
 $stmt->execute([$id]);
 $listing = $stmt->fetch();
 
@@ -63,5 +63,15 @@ if ($status === 'sold' && $buyer !== '') {
 // Putting a listing back on sale clears the buyer: $buyerId is null in that case.
 $stmt = db()->prepare('UPDATE listings SET status = ?, buyer_id = ? WHERE id = ? AND seller_id = ?');
 $stmt->execute([$status, $buyerId, $id, $user['id']]);
+
+// Notifications. The buyer hears about it only when they newly become the buyer,
+// so marking the same sale again does not tell them twice.
+if ($buyerId !== null && $buyerId !== (int) $listing['buyer_id']) {
+    notify($buyerId, NOTE_SOLD_TO_YOU, (int) $user['id'], $id);
+}
+// Everyone else who saved it can stop waiting. Only when it newly becomes sold.
+if ($status === 'sold' && $listing['status'] !== 'sold') {
+    notify_savers($id, NOTE_SAVED_SOLD, [(int) $user['id'], $buyerId ?? 0]);
+}
 
 api_success(['id' => $id, 'status' => $status]);

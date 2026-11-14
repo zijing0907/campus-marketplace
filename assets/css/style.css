@@ -83,13 +83,14 @@ a {
     box-shadow: var(--shadow);
 }
 
-/* As wide as the page content below it, so the two line up. */
+/* A little wider than the page content below it, so that the longest row of links
+   (an admin with a long name and numbers on Inbox, the bell and Admin) fits. */
 .header-inner {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 8px 12px;
-    max-width: 960px;
+    max-width: 1120px;
     margin: 0 auto;
     padding: 10px 16px;
 }
@@ -195,6 +196,33 @@ a {
     cursor: pointer;
 }
 
+/* The red dot on the Menu button while there are new notifications. */
+.nav-toggle {
+    position: relative;
+}
+
+.nav-toggle-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--surface);
+    border-radius: 50%;
+    background: var(--danger);
+}
+
+/* The bell: an icon, its word, and the number of new notifications. */
+.nav-bell {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nav-bell svg {
+    flex-shrink: 0;
+}
+
 .nav-toggle[aria-expanded="true"] {
     border-color: var(--brand);
     background: var(--brand-soft);
@@ -202,7 +230,7 @@ a {
 }
 
 /* Phones and tablets: the links are tucked away behind the Menu button. */
-@media (max-width: 959.98px) {
+@media (max-width: 1039.98px) {
     .has-menu .nav-quick {
         display: inline-flex;
         align-items: center;
@@ -243,6 +271,10 @@ a {
         display: block;
     }
 
+    .has-menu .site-nav a.nav-bell {
+        display: flex;
+    }
+
     /* The Inbox shortcut beside the Menu button already shows this link. */
     .has-menu .site-nav #inbox-link {
         display: none;
@@ -256,11 +288,22 @@ a {
     }
 }
 
-/* Wide screens: all the links in one row, and no Menu button. 960px is where the
-   longest row (an admin with a long name and unread messages) still fits. */
-@media (min-width: 960px) {
+/* Wide screens: all the links in one row, and no Menu button. 1040px is where the
+   longest row (an admin with a long name and numbers on Inbox, the bell and Admin)
+   still fits, with room to spare for two-digit numbers. */
+@media (min-width: 1040px) {
     .nav-toggle {
         display: none;
+    }
+
+    /* On a wide screen the bell is just the icon. The word stays for screen readers. */
+    .nav-bell-label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
     }
 
     .site-nav .nav-sell {
@@ -1659,6 +1702,51 @@ a.stat:hover {
     overflow-wrap: anywhere;       /* long emails wrap instead of overflowing */
 }
 
+/* ---------- Notifications ---------- */
+
+.notifications {
+    display: grid;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* One notification: the sentence on the left, the time on the right. */
+.notification {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 12px 16px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: inherit;
+    text-decoration: none;
+}
+
+.notification:hover {
+    border-color: var(--brand-line);
+}
+
+/* New since the last visit: a blue edge, like an unread conversation. */
+.notification-new {
+    border-left: 4px solid var(--brand);
+    background: var(--brand-soft);
+}
+
+.notification-text {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.notification-time {
+    flex-shrink: 0;
+    color: var(--muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
 /* ---------- Local mailbox (development only) ---------- */
 
 .mailbox {
@@ -1707,7 +1795,8 @@ a.stat:hover {
 .admin-row,
 .my-listing,
 .seller-card,
-.mail {
+.mail,
+.notification {
     border-radius: var(--radius);
     box-shadow: var(--shadow);
 }

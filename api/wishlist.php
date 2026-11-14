@@ -70,4 +70,7 @@ try {
     }
 }
 
+// Let the seller know someone is interested (once per student and listing).
+notify_listing_saved((int) $listing['seller_id'], (int) $user['id'], $listingId);
+
 api_success(['listing_id' => $listingId, 'saved' => true]);
