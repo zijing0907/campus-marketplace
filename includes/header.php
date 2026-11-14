@@ -52,8 +52,14 @@ if ($currentUser) {
         <a class="brand" href="/">
             <?php // The logo, a small shopping bag. It is hidden from screen readers
                   // because the name right beside it already says everything. ?>
-            <svg class="brand-mark" viewBox="0 0 32 32" width="28" height="28" aria-hidden="true">
-                <rect width="32" height="32" rx="8" fill="#2563eb"/>
+            <svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+                <defs>
+                    <linearGradient id="brand-mark-fill" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#2563eb"/>
+                        <stop offset="1" stop-color="#6d28d9"/>
+                    </linearGradient>
+                </defs>
+                <rect width="32" height="32" rx="9" fill="url(#brand-mark-fill)"/>
                 <path d="M9 13h14l-1.1 10.3a2 2 0 0 1-2 1.7h-7.8a2 2 0 0 1-2-1.7z" fill="#ffffff"/>
                 <path d="M12.5 13v-1.5a3.5 3.5 0 0 1 7 0V13" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
             </svg>

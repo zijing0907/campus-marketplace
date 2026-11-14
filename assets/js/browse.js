@@ -10,6 +10,36 @@ const form = document.querySelector('#search-form');
 const results = document.querySelector('#results');
 const summary = document.querySelector('#results-summary');
 const pagination = document.querySelector('#pagination');
+const chips = document.querySelector('#category-chips');
+const filters = document.querySelector('#filters');
+
+// On a wider screen there is room for the filters, so they start open.
+if (window.matchMedia('(min-width: 760px)').matches) {
+    filters.open = true;
+}
+
+// A category shortcut sets the Category filter and searches, without reloading.
+chips.addEventListener('click', (event) => {
+    const chip = event.target.closest('a[data-category]');
+    if (!chip) {
+        return;
+    }
+
+    event.preventDefault();
+    form.elements.category.value = chip.dataset.category;
+    showResults(paramsFromForm(), true);
+});
+
+// Highlight the shortcut of the category being shown ("All" when there is none).
+function markChip(category) {
+    chips.querySelectorAll('a[data-category]').forEach((chip) => {
+        if (chip.dataset.category === category) {
+            chip.setAttribute('aria-current', 'true');
+        } else {
+            chip.removeAttribute('aria-current');
+        }
+    });
+}
 
 // Counts searches, so a slow old reply can be told apart from the newest one.
 let latestSearch = 0;
@@ -106,6 +136,7 @@ async function showResults(params, addToHistory) {
 
 // Redraw the summary line, the cards and the Previous / Next links.
 function draw(data, params) {
+    markChip(params.get('category') || '');
     summary.textContent = data.summary;
     results.replaceChildren(...data.listings.map(createCard));
 
@@ -121,6 +152,8 @@ function draw(data, params) {
 // Builds the same card as includes/listing-card.php. If one changes, change the other.
 // The text is set with textContent, which never treats it as HTML, so a title
 // containing <script> is shown as plain text (NFR-02).
+const PIN_ICON = '<svg class="icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>';
+
 function createCard(listing) {
     const card = document.createElement('a');
     card.className = 'listing-card';
@@ -134,15 +167,23 @@ function createCard(listing) {
         photo.src = listing.cover_url;
     }
 
-    const body = document.createElement('span');
-    body.className = 'listing-card-body';
+    const media = textSpan('listing-card-media', '');
+    media.append(photo, textSpan('listing-card-condition', listing.condition));
+
+    // The icon is fixed markup written above, never text from the server, so
+    // innerHTML is safe here. The place name is added as text after it.
+    const meta = textSpan('listing-card-meta', '');
+    meta.innerHTML = PIN_ICON;
+    meta.append(' ' + listing.meetup_location);
+
+    const body = textSpan('listing-card-body', '');
     body.append(
-        textSpan('listing-card-title', listing.title),
         textSpan('listing-card-price', listing.price_label),
-        textSpan('listing-card-meta', listing.condition + ' · ' + listing.meetup_location)
+        textSpan('listing-card-title', listing.title),
+        meta
     );
 
-    card.append(photo, body);
+    card.append(media, body);
     return card;
 }
 

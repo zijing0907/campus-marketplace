@@ -61,6 +61,7 @@ require __DIR__ . '/../includes/header.php';
 
 <?php if (!$listings): ?>
     <div class="empty">
+        <span class="empty-icon"><?= icon('tag', 26) ?></span>
         <p><strong class="empty-title">Nothing for sale yet</strong>You have not posted anything yet.</p>
         <a class="button" href="/pages/listing-create.php">Sell your first item</a>
     </div>

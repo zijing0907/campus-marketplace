@@ -28,6 +28,9 @@ return [
     // false: a new account works at once. Use this if your host cannot send email.
     'require_email_verification' => true,
 
+    // A link to this project's code, shown in the footer. Leave it empty ('') to hide it.
+    'source_code_url' => 'https://github.com/zijing0907/campus-marketplace',
+
     // true:  show PHP's full error details. Use this on your own computer only.
     // false: log errors and show visitors a plain "Something went wrong" page.
     //        A live site must always use false.

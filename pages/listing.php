@@ -13,7 +13,7 @@ if (is_int($id) && $id > 0) {
     $stmt = db()->prepare(
         'SELECT l.id, l.seller_id, l.title, l.description, l.price, l.item_condition,
                 l.meetup_location, l.status, l.created_at, l.buyer_id,
-                c.name AS category_name,
+                l.category_id, c.name AS category_name,
                 u.name AS seller_name, u.faculty AS seller_faculty,
                 u.phone AS seller_phone, u.avatar_path AS seller_avatar_path,
                 u.is_banned AS seller_is_banned
@@ -96,9 +96,39 @@ if ($isBuyer) {
     $myReview = $stmt->fetch() ?: null;
 }
 
+// "More like this": up to four other items for sale in the same category, newest
+// first. The same rules as on the home page: still for sale, and the seller is not
+// banned (a deleted account counts as banned too).
+$stmt = db()->prepare(
+    "SELECT l.id, l.title, l.price, l.item_condition, l.meetup_location,
+            (SELECT i.file_path
+             FROM listing_images i
+             WHERE i.listing_id = l.id
+             ORDER BY i.sort_order, i.id
+             LIMIT 1) AS cover_path
+     FROM listings l
+     JOIN users u ON u.id = l.seller_id
+     WHERE l.category_id = ? AND l.id <> ? AND l.status = 'available' AND u.is_banned = 0
+     ORDER BY l.created_at DESC, l.id DESC
+     LIMIT 4"
+);
+$stmt->execute([$listing['category_id'], $listing['id']]);
+$similar = $stmt->fetchAll();
+
+$categoryUrl = '/?category=' . (int) $listing['category_id'];
+
 $pageTitle = $listing['title'];
 require __DIR__ . '/../includes/header.php';
 ?>
+
+<?php // Where this page sits: the way back to the listings, and to its category. ?>
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="/">Browse</a>
+    <?= icon('chevron', 14) ?>
+    <a href="<?= e($categoryUrl) ?>"><?= e($listing['category_name']) ?></a>
+    <?= icon('chevron', 14) ?>
+    <span aria-current="page"><?= e($listing['title']) ?></span>
+</nav>
 
 <?php if ($listing['status'] === 'hidden'): ?>
     <p class="alert alert-info">This listing is hidden. Only its seller and the admins can see it.</p>
@@ -126,9 +156,13 @@ require __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="listing-info">
-        <?php if ($listing['status'] === 'sold'): ?>
-            <span class="badge badge-sold">Sold</span>
-        <?php endif; ?>
+        <div class="listing-tags">
+            <?php if ($listing['status'] === 'sold'): ?>
+                <span class="badge badge-sold">Sold</span>
+            <?php endif; ?>
+            <span class="tag"><?= icon('tag', 14) ?> <?= e(LISTING_CONDITIONS[$listing['item_condition']]) ?></span>
+            <a class="tag" href="<?= e($categoryUrl) ?>"><?= category_icon($listing['category_name'], 14) ?> <?= e($listing['category_name']) ?></a>
+        </div>
 
         <h1><?= e($listing['title']) ?></h1>
         <p class="price"><?= e(format_price($listing['price'])) ?></p>
@@ -142,16 +176,10 @@ require __DIR__ . '/../includes/header.php';
         <?php endif; ?>
 
         <dl class="facts">
-            <dt>Condition</dt>
-            <dd><?= e(LISTING_CONDITIONS[$listing['item_condition']]) ?></dd>
-
-            <dt>Category</dt>
-            <dd><?= e($listing['category_name']) ?></dd>
-
-            <dt>Meetup location</dt>
+            <dt><?= icon('pin', 16) ?> Meetup location</dt>
             <dd><?= e($listing['meetup_location']) ?></dd>
 
-            <dt>Posted</dt>
+            <dt><?= icon('calendar', 16) ?> Posted</dt>
             <dd><?= e(date('j M Y', strtotime($listing['created_at']))) ?></dd>
         </dl>
 
@@ -279,6 +307,17 @@ require __DIR__ . '/../includes/header.php';
         <?php endif; ?>
     </div>
 </article>
+
+<?php if ($similar): ?>
+    <section class="similar">
+        <h2 class="section-title">More in <?= e($listing['category_name']) ?></h2>
+        <div class="listing-grid">
+            <?php foreach ($similar as $row): ?>
+                <?php require __DIR__ . '/../includes/listing-card.php'; ?>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>
 
 <?php if (count($photos) > 1): ?>
     <script src="/assets/js/gallery.js"></script>

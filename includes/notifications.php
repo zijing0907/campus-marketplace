@@ -141,6 +141,25 @@ function mark_notifications_read(int $userId): void
  */
 function notification_view(array $row, int $userId): array
 {
+    return ['icon' => NOTIFICATION_ICONS[$row['type']] ?? 'bell'] + notification_words($row, $userId);
+}
+
+// The icon shown beside each kind of notification (see includes/icons.php).
+const NOTIFICATION_ICONS = [
+    NOTE_LISTING_SAVED    => 'heart',
+    NOTE_REVIEW_RECEIVED  => 'star',
+    NOTE_SOLD_TO_YOU      => 'check',
+    NOTE_LISTING_HIDDEN   => 'eye-off',
+    NOTE_LISTING_RESTORED => 'check',
+    NOTE_SAVED_SOLD       => 'box',
+    NOTE_SAVED_PRICE_DROP => 'tag',
+];
+
+/**
+ * The sentence and the link of one notification. See notification_view().
+ */
+function notification_words(array $row, int $userId): array
+{
     $title = '“' . ($row['listing_title'] ?? 'a listing') . '”';
     // If the student who did it has since been removed completely, say "Someone".
     $who = $row['actor_name'] ?? 'Someone';

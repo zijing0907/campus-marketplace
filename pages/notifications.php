@@ -21,6 +21,7 @@ require __DIR__ . '/../includes/header.php';
 
 <?php if (!$notifications): ?>
     <div class="empty">
+        <span class="empty-icon"><?= icon('bell', 26) ?></span>
         <p><strong class="empty-title">Nothing new</strong>You will see here when someone saves or buys your items,
            rates you, or when an item you saved is sold or gets cheaper.</p>
         <a class="button button-secondary" href="/">Browse listings</a>
@@ -31,6 +32,7 @@ require __DIR__ . '/../includes/header.php';
             <?php $view = notification_view($row, $me); ?>
             <li>
                 <a class="notification <?= $row['is_read'] ? '' : 'notification-new' ?>" href="<?= e($view['url']) ?>">
+                    <span class="notification-icon notification-icon-<?= e($view['icon']) ?>"><?= icon($view['icon'], 18) ?></span>
                     <?php if (!$row['is_read']): ?>
                         <span class="visually-hidden">New: </span>
                     <?php endif; ?>

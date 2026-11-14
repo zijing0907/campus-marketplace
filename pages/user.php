@@ -70,6 +70,7 @@ require __DIR__ . '/../includes/header.php';
 <?php endif; ?>
 
 <section class="profile-card">
+    <div class="profile-cover"></div>
     <div class="profile-head">
         <?= avatar_html($profile) ?>
         <div>

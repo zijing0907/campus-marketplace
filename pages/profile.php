@@ -9,7 +9,8 @@ $pageTitle = 'My account';
 require __DIR__ . '/../includes/header.php';
 ?>
 
-<section class="form-card">
+<section class="form-card account-card">
+    <div class="profile-cover"></div>
     <div class="profile-head">
         <?= avatar_html($user) ?>
         <div>

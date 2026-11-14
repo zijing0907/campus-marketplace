@@ -20,6 +20,7 @@ require __DIR__ . '/../includes/header.php';
 <?php // Both the list and the "no messages" note are always in the page, one of them
       // hidden. assets/js/inbox.js switches them when the first message arrives. ?>
 <div class="empty" id="inbox-empty" <?= $conversations ? 'hidden' : '' ?>>
+    <span class="empty-icon"><?= icon('message', 26) ?></span>
     <p><strong class="empty-title">No messages yet</strong>When you message a seller, or a buyer messages you, the conversation appears here.</p>
     <a class="button button-secondary" href="/">Browse listings</a>
 </div>

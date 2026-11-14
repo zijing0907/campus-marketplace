@@ -36,6 +36,7 @@ require __DIR__ . '/../includes/header.php';
 
 <?php // Shown when the list is empty, including after the last item is removed. ?>
 <div id="wishlist-empty" class="empty" <?= $listings ? 'hidden' : '' ?>>
+    <span class="empty-icon"><?= icon('heart', 26) ?></span>
     <p><strong class="empty-title">Nothing saved yet</strong>You have not saved anything yet. Use the Save button on a listing to keep it here.</p>
     <a class="button button-secondary" href="/">Browse listings</a>
 </div>

@@ -7,17 +7,18 @@
 // If this markup changes, change it there too.
 ?>
 <a class="listing-card" href="/pages/listing.php?id=<?= e((string) $row['id']) ?>">
-    <?php // alt is empty because the title is right below, inside the same link. ?>
-    <img class="listing-card-photo" alt="" loading="lazy"
-         <?php if ($row['cover_path'] !== null): ?>src="/<?= e($row['cover_path']) ?>"<?php endif; ?>>
+    <span class="listing-card-media">
+        <?php // alt is empty because the title is right below, inside the same link. ?>
+        <img class="listing-card-photo" alt="" loading="lazy"
+             <?php if ($row['cover_path'] !== null): ?>src="/<?= e($row['cover_path']) ?>"<?php endif; ?>>
+        <span class="listing-card-condition"><?= e(LISTING_CONDITIONS[$row['item_condition']]) ?></span>
+        <?php if (($row['status'] ?? '') === 'sold'): ?>
+            <span class="badge badge-sold listing-card-sold">Sold</span>
+        <?php endif; ?>
+    </span>
     <span class="listing-card-body">
+        <span class="listing-card-price"><?= e(format_price($row['price'])) ?></span>
         <span class="listing-card-title"><?= e($row['title']) ?></span>
-        <span class="listing-card-price">
-            <?= e(format_price($row['price'])) ?>
-            <?php if (($row['status'] ?? '') === 'sold'): ?>
-                <span class="badge badge-sold">Sold</span>
-            <?php endif; ?>
-        </span>
-        <span class="listing-card-meta"><?= e(LISTING_CONDITIONS[$row['item_condition']]) ?> · <?= e($row['meetup_location']) ?></span>
+        <span class="listing-card-meta"><?= icon('pin', 14) ?> <?= e($row['meetup_location']) ?></span>
     </span>
 </a>
