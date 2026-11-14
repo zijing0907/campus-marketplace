@@ -36,35 +36,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $sent = get_text('sent') === '1';
 
 $pageTitle = 'Confirm your email';
+$bodyClass = 'auth-page';
 require __DIR__ . '/../includes/header.php';
+require __DIR__ . '/../includes/auth-start.php';
 ?>
 
-<section class="form-card">
-    <?php if ($sent): ?>
+<?php if ($sent): ?>
+    <div class="auth-message">
+        <span class="auth-message-icon"><?= icon('mail', 28) ?></span>
         <h1>Check your email</h1>
         <p>If that address belongs to an account that still needs confirming, a new link is on its way.
            It works for 24 hours.</p>
         <?= dev_mailbox_note() ?>
-        <a class="button button-secondary" href="/pages/login.php">Back to log in</a>
-    <?php else: ?>
-        <h1>Send the confirmation link again</h1>
-        <p class="note">Enter the university email you signed up with.</p>
+        <a class="button button-secondary" href="/pages/login.php"><?= icon('log-in') ?> Back to log in</a>
+    </div>
+<?php else: ?>
+    <h1>Send the confirmation link again</h1>
+    <p class="note">Enter the university email you signed up with.</p>
 
-        <form method="post" action="/pages/resend-verification.php">
-            <?= csrf_field() ?>
+    <form method="post" action="/pages/resend-verification.php">
+        <?= csrf_field() ?>
 
-            <label for="email">University email</label>
-            <input type="email" id="email" name="email" value="<?= e($email) ?>"
-                   required maxlength="255" autocomplete="email">
-            <?php if ($error !== ''): ?>
-                <p class="field-error"><?= e($error) ?></p>
-            <?php endif; ?>
+        <label for="email">University email</label>
+        <input type="email" id="email" name="email" value="<?= e($email) ?>"
+               required maxlength="255" autocomplete="email" placeholder="you@<?= e($authDomain) ?>">
+        <?php if ($error !== ''): ?>
+            <p class="field-error"><?= e($error) ?></p>
+        <?php endif; ?>
 
-            <button type="submit" class="button">Send link</button>
-        </form>
+        <button type="submit" class="button button-gradient" data-loading-text="Sending…"><?= icon('send') ?> Send link</button>
+    </form>
 
-        <p class="form-footer"><a href="/pages/login.php">Back to log in</a></p>
-    <?php endif; ?>
-</section>
+    <ul class="auth-links">
+        <li><a href="/pages/login.php"><?= icon('log-in') ?> Back to log in</a></li>
+    </ul>
+<?php endif; ?>
 
+<?php require __DIR__ . '/../includes/auth-end.php'; ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

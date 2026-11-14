@@ -45,11 +45,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $sent = get_text('sent') === '1';
 
 $pageTitle = 'Forgot your password';
+$bodyClass = 'auth-page';
 require __DIR__ . '/../includes/header.php';
+require __DIR__ . '/../includes/auth-start.php';
 ?>
 
-<section class="form-card">
-    <?php if ($sent): ?>
+<?php if ($sent): ?>
+    <div class="auth-message">
+        <span class="auth-message-icon"><?= icon('mail', 28) ?></span>
         <h1>Check your email</h1>
         <p>If there is an account for that email address, a link to choose a new password is on its way.
            It works for <?= PASSWORD_RESET_MINUTES ?> minutes.</p>
@@ -58,26 +61,29 @@ require __DIR__ . '/../includes/header.php';
         <?php // Shown on a developer's own computer only; see dev_mailbox_note(). ?>
         <?= dev_mailbox_note() ?>
 
-        <a class="button button-secondary" href="/pages/login.php">Back to log in</a>
-    <?php else: ?>
-        <h1>Forgot your password?</h1>
-        <p class="note">Enter your university email and we will send you a link to choose a new one.</p>
+        <a class="button button-secondary" href="/pages/login.php"><?= icon('log-in') ?> Back to log in</a>
+    </div>
+<?php else: ?>
+    <h1>Forgot your password?</h1>
+    <p class="note">Enter your university email and we will send you a link to choose a new one.</p>
 
-        <form method="post" action="/pages/forgot-password.php">
-            <?= csrf_field() ?>
+    <form method="post" action="/pages/forgot-password.php">
+        <?= csrf_field() ?>
 
-            <label for="email">University email</label>
-            <input type="email" id="email" name="email" value="<?= e($email) ?>"
-                   required maxlength="255" autocomplete="email">
-            <?php if ($error !== ''): ?>
-                <p class="field-error"><?= e($error) ?></p>
-            <?php endif; ?>
+        <label for="email">University email</label>
+        <input type="email" id="email" name="email" value="<?= e($email) ?>"
+               required maxlength="255" autocomplete="email" placeholder="you@<?= e($authDomain) ?>">
+        <?php if ($error !== ''): ?>
+            <p class="field-error"><?= e($error) ?></p>
+        <?php endif; ?>
 
-            <button type="submit" class="button">Send reset link</button>
-        </form>
+        <button type="submit" class="button button-gradient" data-loading-text="Sending…"><?= icon('send') ?> Send reset link</button>
+    </form>
 
-        <p class="form-footer"><a href="/pages/login.php">Back to log in</a></p>
-    <?php endif; ?>
-</section>
+    <ul class="auth-links">
+        <li><a href="/pages/login.php"><?= icon('log-in') ?> Back to log in</a></li>
+    </ul>
+<?php endif; ?>
 
+<?php require __DIR__ . '/../includes/auth-end.php'; ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

@@ -133,9 +133,17 @@ function password_mark(string $passwordHash): string
 /**
  * Mark this browser's session as logged in. Call only after the password is verified.
  * $passwordHash is the hash stored for the user; see password_mark() for why.
+ *
+ * $remember is the "Remember me" box on the login page:
+ *   true   the login lasts 30 days, even if the browser is closed (SESSION_LIFETIME)
+ *   false  it ends when the browser is closed, which is safer on a shared computer
+ *   null   keep whatever this browser chose when it logged in (used when the same
+ *          student is logged in again, for example after changing their password)
  */
-function login_user(int $userId, string $passwordHash): void
+function login_user(int $userId, string $passwordHash, ?bool $remember = null): void
 {
+    $remember ??= $_SESSION['remember'] ?? true;
+
     // Give the session a brand-new ID at login. If an attacker somehow planted a
     // session ID in the victim's browser beforehand, it stops working here
     // (this attack is called session fixation).
@@ -143,6 +151,23 @@ function login_user(int $userId, string $passwordHash): void
 
     $_SESSION['user_id'] = $userId;
     $_SESSION['password_mark'] = password_mark($passwordHash);
+    $_SESSION['remember'] = $remember;
+
+    if (!$remember) {
+        // session_regenerate_id() just sent the new session cookie with a 30-day
+        // expiry date. Send it again without one: a cookie with no expiry date is
+        // a "session cookie", which the browser deletes when it closes.
+        // PHP sends this cookie only when the ID changes, so it stays like this.
+        $params = session_get_cookie_params();
+        setcookie(session_name(), session_id(), [
+            'expires'  => 0,
+            'path'     => $params['path'],
+            'domain'   => $params['domain'],
+            'secure'   => $params['secure'],
+            'httponly' => $params['httponly'],
+            'samesite' => $params['samesite'],
+        ]);
+    }
 
     // A fresh CSRF token will be created for the logged-in session.
     unset($_SESSION['csrf_token']);

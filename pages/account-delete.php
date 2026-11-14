@@ -69,7 +69,7 @@ require __DIR__ . '/../includes/header.php';
             <?= csrf_field() ?>
 
             <label for="password">Your password</label>
-            <input type="password" id="password" name="password" required autocomplete="current-password">
+            <input type="password" id="password" name="password" required autocomplete="current-password" data-password-toggle>
             <?= field_error($errors, 'password') ?>
 
             <label class="checkbox">
@@ -84,5 +84,7 @@ require __DIR__ . '/../includes/header.php';
         <p class="form-footer"><a href="/pages/profile.php">Keep my account</a></p>
     <?php endif; ?>
 </section>
+
+<script src="/assets/js/forms.js"></script>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

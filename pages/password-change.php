@@ -67,18 +67,18 @@ require __DIR__ . '/../includes/header.php';
 
         <label for="current_password">Current password</label>
         <input type="password" id="current_password" name="current_password"
-               required autocomplete="current-password">
+               required autocomplete="current-password" data-password-toggle>
         <?= field_error($errors, 'current_password') ?>
 
         <label for="password">New password</label>
         <input type="password" id="password" name="password"
-               required minlength="8" autocomplete="new-password">
+               required minlength="8" autocomplete="new-password" data-password-toggle>
         <p class="hint">At least 8 characters.</p>
         <?= field_error($errors, 'password') ?>
 
         <label for="password_confirm">Confirm new password</label>
         <input type="password" id="password_confirm" name="password_confirm"
-               required minlength="8" autocomplete="new-password">
+               required minlength="8" autocomplete="new-password" data-password-toggle>
         <?= field_error($errors, 'password_confirm') ?>
 
         <button type="submit" class="button">Change password</button>
@@ -86,5 +86,7 @@ require __DIR__ . '/../includes/header.php';
 
     <p class="form-footer"><a href="/pages/profile.php">Back to my account</a></p>
 </section>
+
+<script src="/assets/js/forms.js"></script>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

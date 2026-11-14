@@ -54,36 +54,41 @@ if ($posting && $tokenRow !== null) {
 }
 
 $pageTitle = 'Choose a new password';
+$bodyClass = 'auth-page';
 require __DIR__ . '/../includes/header.php';
+require __DIR__ . '/../includes/auth-start.php';
 ?>
 
-<section class="form-card">
-    <?php if ($tokenRow === null): ?>
-        <?php // One message for every reason: unknown, already used, or too old. ?>
+<?php if ($tokenRow === null): ?>
+    <?php // One message for every reason: unknown, already used, or too old. ?>
+    <div class="auth-message">
+        <span class="auth-message-icon auth-message-icon-warning"><?= icon('clock', 28) ?></span>
         <h1>This link no longer works</h1>
         <p>A reset link works once, and only for <?= PASSWORD_RESET_MINUTES ?> minutes. Ask for a new one and use it straight away.</p>
-        <a class="button" href="/pages/forgot-password.php">Send a new link</a>
-    <?php else: ?>
-        <h1>Choose a new password</h1>
+        <a class="button button-gradient" href="/pages/forgot-password.php"><?= icon('send') ?> Send a new link</a>
+    </div>
+<?php else: ?>
+    <h1>Choose a new password</h1>
+    <p class="note">Every device that is logged in with the old password will be logged out.</p>
 
-        <form method="post" action="/pages/reset-password.php">
-            <?= csrf_field() ?>
-            <input type="hidden" name="token" value="<?= e($token) ?>">
+    <form method="post" action="/pages/reset-password.php">
+        <?= csrf_field() ?>
+        <input type="hidden" name="token" value="<?= e($token) ?>">
 
-            <label for="password">New password</label>
-            <input type="password" id="password" name="password"
-                   required minlength="8" autocomplete="new-password">
-            <p class="hint">At least 8 characters.</p>
-            <?= field_error($errors, 'password') ?>
+        <label for="password">New password</label>
+        <input type="password" id="password" name="password"
+               required minlength="8" autocomplete="new-password" data-password-toggle>
+        <p class="hint">At least 8 characters.</p>
+        <?= field_error($errors, 'password') ?>
 
-            <label for="password_confirm">Confirm new password</label>
-            <input type="password" id="password_confirm" name="password_confirm"
-                   required minlength="8" autocomplete="new-password">
-            <?= field_error($errors, 'password_confirm') ?>
+        <label for="password_confirm">Confirm new password</label>
+        <input type="password" id="password_confirm" name="password_confirm"
+               required minlength="8" autocomplete="new-password" data-password-toggle>
+        <?= field_error($errors, 'password_confirm') ?>
 
-            <button type="submit" class="button">Change password</button>
-        </form>
-    <?php endif; ?>
-</section>
+        <button type="submit" class="button button-gradient" data-loading-text="Saving…"><?= icon('lock') ?> Change password</button>
+    </form>
+<?php endif; ?>
 
+<?php require __DIR__ . '/../includes/auth-end.php'; ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

@@ -9,6 +9,8 @@
     --brand-soft: #eff4ff;
     --brand-soft-strong: #dbe4ff;
     --brand-line: #c7d7fe;
+    --accent: #6d28d9;             /* violet: the other end of the brand gradient */
+    --brand-gradient: linear-gradient(135deg, var(--brand), var(--accent));
     --on-brand: #ffffff;           /* text on top of a brand-coloured background */
 
     --text: #1f2933;
@@ -151,8 +153,10 @@ a {
 
 /* A guest on a narrow phone has no room for "Browse" (the site name also leads
    home) or for "Register" (the home page offers "Create an account"). */
-.nav-browse,
-.nav-register {
+/* ".site-nav" in front makes these rules stronger than ".button", which would
+   otherwise show the Register button again. */
+.site-nav .nav-browse,
+.site-nav .nav-register {
     display: none;
 }
 
@@ -163,7 +167,7 @@ a {
 }
 
 @media (min-width: 520px) {
-    .nav-browse {
+    .site-nav .nav-browse {
         display: inline;
     }
 }
@@ -401,6 +405,87 @@ main {
     color: var(--brand);
     font: inherit;
     cursor: pointer;
+}
+
+/* An icon from icon() beside words, in a button or a link. */
+.icon {
+    flex-shrink: 0;
+    vertical-align: -0.2em;
+}
+
+.button .icon {
+    margin-right: 4px;
+}
+
+/* The main button of a page, in the brand gradient. */
+.button-gradient {
+    border: 0;
+    background: var(--brand-gradient);
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3);
+}
+
+.button-gradient:hover {
+    background: var(--brand-gradient);
+    filter: brightness(1.08);
+}
+
+/* While a form is being sent (see forms.js): a spinning ring before the words. */
+.button.is-loading::before {
+    content: "";
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    margin-right: 8px;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-top-color: var(--on-brand);
+    border-radius: 50%;
+    vertical-align: -0.15em;
+    animation: spin 0.8s linear infinite;
+}
+
+.button-gradient:disabled {
+    opacity: 0.85;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* A password field with the eye button attached on the right (see forms.js). */
+.password-field {
+    display: flex;
+}
+
+.password-field input {
+    min-width: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.password-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    flex-shrink: 0;
+    border: 1px solid var(--line-strong);
+    border-left: 0;
+    border-radius: 0 var(--radius-small) var(--radius-small) 0;
+    background: var(--brand-soft);
+    color: var(--muted);
+    cursor: pointer;
+}
+
+.password-toggle:hover,
+.password-toggle[aria-pressed="true"] {
+    color: var(--brand-dark);
+}
+
+.password-toggle:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
 }
 
 /* A button that cannot be pressed right now, for example while its request is
@@ -1700,6 +1785,262 @@ a.stat:hover {
 .details dd {
     margin: 0;
     overflow-wrap: anywhere;       /* long emails wrap instead of overflowing */
+}
+
+/* ---------- Account pages: log in, register, passwords, email links ---------- */
+
+/* The coloured background behind the card. It is drawn entirely with CSS: two
+   soft glows, a faint grid of dots, and a blue-to-violet gradient, so there is no
+   image to download. */
+body.auth-page main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: none;
+    padding: 40px 16px 56px;
+    background:
+        radial-gradient(600px 420px at 8% 12%, rgba(96, 165, 250, 0.55), transparent 70%),
+        radial-gradient(520px 520px at 92% 88%, rgba(167, 139, 250, 0.5), transparent 70%),
+        radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1.6px) 0 0 / 22px 22px,
+        linear-gradient(135deg, #1e3a8a, #312e81 55%, #4c1d95);
+}
+
+/* A message such as "Your password has been changed" sits just above the card,
+   as wide as the card. */
+body.auth-page main > .alert {
+    width: 100%;
+    max-width: 920px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+}
+
+.auth {
+    width: 100%;
+    max-width: 920px;
+}
+
+/* The card: see-through white with the background blurred behind it, the
+   "frosted glass" look. */
+.auth-card {
+    display: grid;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(16px) saturate(1.4);
+}
+
+/* Who we are: on a phone a short strip at the top, on a wider screen the left half. */
+.auth-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 24px 20px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(160deg, rgba(239, 244, 255, 0.9), rgba(245, 240, 255, 0.7));
+    text-align: center;
+}
+
+.auth-logo {
+    width: 56px;
+    height: 56px;
+    filter: drop-shadow(0 6px 12px rgba(79, 70, 229, 0.35));
+}
+
+.auth-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 14px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--brand-gradient);
+    color: var(--on-brand);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+/* The name in the brand gradient: the gradient is painted, then cut to the letters. */
+.auth-name {
+    margin: 14px 0 0;
+    background: var(--brand-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+}
+
+.auth-lead {
+    max-width: 22rem;
+    margin: 6px 0 0;
+    color: #4338ca;
+}
+
+/* The three reasons to join: wide screens only, there is no room on a phone. */
+.auth-points {
+    display: none;
+}
+
+.auth-form {
+    padding: 24px 22px 28px;
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.auth-form h1 {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.auth-form > .note {
+    margin: 4px 0 0;
+}
+
+.auth-form .alert {
+    margin: 16px 0 0;
+}
+
+.auth-form .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px 16px;
+}
+
+/* "Remember me" on the left, "Forgot your password?" on the right. */
+.auth-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px 16px;
+    margin-top: 14px;
+    font-size: 0.92rem;
+}
+
+.auth-row .checkbox {
+    margin: 0;
+}
+
+.auth-row a {
+    text-decoration: none;
+}
+
+/* The links under the form, each with an icon. */
+.auth-links {
+    display: grid;
+    gap: 10px;
+    margin: 22px 0 0;
+    padding: 18px 0 0;
+    border-top: 1px solid var(--line);
+    list-style: none;
+}
+
+.auth-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.auth-links a:hover {
+    color: var(--brand-dark);
+}
+
+/* "Check your email" and "This link no longer works": a big icon above the words. */
+.auth-message {
+    text-align: center;
+}
+
+.auth-message-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    margin-bottom: 12px;
+    border-radius: 50%;
+    background: var(--brand-soft);
+    color: var(--brand-dark);
+}
+
+.auth-message-icon-warning {
+    background: #fffaeb;
+    color: var(--star);
+}
+
+.auth-message p {
+    margin: 10px 0 0;
+}
+
+@media (min-width: 760px) {
+    body.auth-page main {
+        padding: 64px 24px 80px;
+    }
+
+    .auth-card {
+        grid-template-columns: 0.9fr 1.1fr;
+    }
+
+    .auth-brand {
+        justify-content: center;
+        padding: 48px 36px;
+        border-right: 1px solid var(--line);
+        border-bottom: 0;
+    }
+
+    .auth-logo {
+        width: 88px;
+        height: 88px;
+    }
+
+    .auth-name {
+        font-size: 2rem;
+    }
+
+    .auth-points {
+        display: grid;
+        gap: 12px;
+        margin: 28px 0 0;
+        padding: 0;
+        color: var(--text);
+        font-size: 0.95rem;
+        list-style: none;
+        text-align: left;
+    }
+
+    .auth-points li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .auth-points svg {
+        flex-shrink: 0;
+        color: var(--accent);
+    }
+
+    .auth-form {
+        padding: 48px 44px;
+    }
+}
+
+/* Some browsers cannot blur what is behind an element. There the card is simply
+   solid white, which reads just as well. */
+@supports not (backdrop-filter: blur(1px)) {
+    .auth-card {
+        background: var(--surface);
+    }
 }
 
 /* ---------- Notifications ---------- */

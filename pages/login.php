@@ -6,12 +6,14 @@ require_guest();
 $error = '';
 $email = '';
 $unconfirmed = false;   // true: the password was right, but the email is not confirmed yet
+$remember = false;      // the "Remember me" box; it starts unticked, the safer choice
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verify_csrf();
 
     $email = strtolower(post_text('email'));
     $password = post_text('password', trim: false);
+    $remember = post_text('remember') === '1';
 
     $stmt = db()->prepare('SELECT id, name, password_hash, is_verified, is_banned FROM users WHERE email = ?');
     $stmt->execute([$email]);
@@ -47,48 +49,63 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Confirm your email address first. Open the link we sent to ' . $email . ' when you signed up.';
     } else {
         clear_failed_logins($email);
-        login_user((int) $user['id'], $user['password_hash']);
+        // Ticked "Remember me": stay logged in for 30 days. Not ticked: until the browser closes.
+        login_user((int) $user['id'], $user['password_hash'], $remember);
         set_flash('success', 'Welcome back, ' . $user['name'] . '!');
         redirect('/');
     }
 }
 
 $pageTitle = 'Log in';
+$bodyClass = 'auth-page';
 require __DIR__ . '/../includes/header.php';
+require __DIR__ . '/../includes/auth-start.php';
 ?>
 
-<section class="form-card">
-    <h1>Log in</h1>
+<h1>Welcome back</h1>
+<p class="note">Log in with your university email.</p>
 
-    <?php if ($error !== ''): ?>
-        <p class="alert alert-error"><?= e($error) ?></p>
-    <?php endif; ?>
+<?php if ($error !== ''): ?>
+    <p class="alert alert-error"><?= e($error) ?></p>
+<?php endif; ?>
 
-    <?php if ($unconfirmed): ?>
-        <?php // One click to get a fresh link, without typing the address again. ?>
-        <form method="post" action="/pages/resend-verification.php" class="resend-form">
-            <?= csrf_field() ?>
-            <input type="hidden" name="email" value="<?= e($email) ?>">
-            <button type="submit" class="button button-secondary">Send the link again</button>
-        </form>
-    <?php endif; ?>
-
-    <form method="post" action="/pages/login.php">
+<?php if ($unconfirmed): ?>
+    <?php // One click to get a fresh link, without typing the address again. ?>
+    <form method="post" action="/pages/resend-verification.php" class="resend-form">
         <?= csrf_field() ?>
-
-        <label for="email">University email</label>
-        <input type="email" id="email" name="email" value="<?= e($email) ?>"
-               required autocomplete="email">
-
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password"
-               required autocomplete="current-password">
-
-        <button type="submit" class="button">Log in</button>
+        <input type="hidden" name="email" value="<?= e($email) ?>">
+        <button type="submit" class="button button-secondary"><?= icon('send') ?> Send the link again</button>
     </form>
+<?php endif; ?>
 
-    <p class="form-footer"><a href="/pages/forgot-password.php">Forgot your password?</a></p>
-    <p class="form-footer">New here? <a href="/pages/register.php">Create an account</a></p>
-</section>
+<form method="post" action="/pages/login.php">
+    <?= csrf_field() ?>
 
+    <label for="email">University email</label>
+    <input type="email" id="email" name="email" value="<?= e($email) ?>"
+           required autocomplete="email" placeholder="you@<?= e($authDomain) ?>">
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password"
+           required autocomplete="current-password" data-password-toggle>
+
+    <div class="auth-row">
+        <label class="checkbox">
+            <input type="checkbox" name="remember" value="1" <?= $remember ? 'checked' : '' ?>>
+            Remember me
+        </label>
+        <a href="/pages/forgot-password.php"><?= icon('key', 16) ?> Forgot your password?</a>
+    </div>
+
+    <button type="submit" class="button button-gradient" data-loading-text="Logging in…"><?= icon('lock') ?> Log in</button>
+</form>
+
+<ul class="auth-links">
+    <li><a href="/pages/register.php"><?= icon('user-plus') ?> New here? Create an account</a></li>
+    <?php if (email_verification_required()): ?>
+        <li><a href="/pages/resend-verification.php"><?= icon('mail') ?> Didn't get the confirmation email?</a></li>
+    <?php endif; ?>
+</ul>
+
+<?php require __DIR__ . '/../includes/auth-end.php'; ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

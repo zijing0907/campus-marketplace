@@ -19,7 +19,8 @@ $currentUser = current_user();
     <link rel="icon" href="/assets/img/favicon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/style.css">
 </head>
-<body>
+<?php // A page can set $bodyClass first, for example the account pages' "auth-page". ?>
+<body<?= isset($bodyClass) ? ' class="' . e($bodyClass) . '"' : '' ?>>
 <?php
 // Marks the menu link of the page being shown. Screen readers announce it as the
 // current page, and the stylesheet uses the same attribute to highlight it.

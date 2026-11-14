@@ -73,25 +73,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $emailPattern = '.+@' . str_replace('.', '\.', $domain);
 
 $pageTitle = 'Register';
+$bodyClass = 'auth-page';
 require __DIR__ . '/../includes/header.php';
+require __DIR__ . '/../includes/auth-start.php';
 ?>
 
 <?php if (get_text('done') === '1'): ?>
     <?php // Shown after a successful sign-up while confirming is switched on. ?>
-    <section class="form-card">
+    <div class="auth-message">
+        <span class="auth-message-icon"><?= icon('mail', 28) ?></span>
         <h1>Check your email</h1>
         <p>Your account is almost ready. We sent a link to your university email.
            Open it within 24 hours to activate your account, then log in.</p>
         <p class="note">Nothing there? Look in your spam folder, or
            <a href="/pages/resend-verification.php">send the link again</a>.</p>
         <?= dev_mailbox_note() ?>
-        <a class="button button-secondary" href="/pages/login.php">Go to log in</a>
-    </section>
-    <?php require __DIR__ . '/../includes/footer.php'; ?>
-    <?php exit; ?>
-<?php endif; ?>
-
-<section class="form-card">
+        <a class="button button-gradient" href="/pages/login.php"><?= icon('log-in') ?> Go to log in</a>
+    </div>
+<?php else: ?>
     <h1>Create your account</h1>
     <p class="note">
         For students with an @<?= e($domain) ?> email address.
@@ -118,19 +117,22 @@ require __DIR__ . '/../includes/header.php';
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password"
-               required minlength="8" autocomplete="new-password">
+               required minlength="8" autocomplete="new-password" data-password-toggle>
         <p class="hint">At least 8 characters.</p>
         <?= field_error($errors, 'password') ?>
 
         <label for="password_confirm">Confirm password</label>
         <input type="password" id="password_confirm" name="password_confirm"
-               required minlength="8" autocomplete="new-password">
+               required minlength="8" autocomplete="new-password" data-password-toggle>
         <?= field_error($errors, 'password_confirm') ?>
 
-        <button type="submit" class="button">Create account</button>
+        <button type="submit" class="button button-gradient" data-loading-text="Creating your account…"><?= icon('user-plus') ?> Create account</button>
     </form>
 
-    <p class="form-footer">Already have an account? <a href="/pages/login.php">Log in</a></p>
-</section>
+    <ul class="auth-links">
+        <li><a href="/pages/login.php"><?= icon('log-in') ?> Already have an account? Log in</a></li>
+    </ul>
+<?php endif; ?>
 
+<?php require __DIR__ . '/../includes/auth-end.php'; ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>

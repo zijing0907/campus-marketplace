@@ -31,16 +31,20 @@ if ($tokenRow !== null) {
 }
 
 $pageTitle = 'Confirm your email';
+$bodyClass = 'auth-page';
 require __DIR__ . '/../includes/header.php';
+require __DIR__ . '/../includes/auth-start.php';
 ?>
 
-<section class="form-card">
-    <?php // One message for every reason: unknown, already used, or too old. ?>
+<?php // One message for every reason: unknown, already used, or too old. ?>
+<div class="auth-message">
+    <span class="auth-message-icon auth-message-icon-warning"><?= icon('clock', 28) ?></span>
     <h1>This link no longer works</h1>
     <p>A confirmation link works once, and only for 24 hours.
        If you already confirmed your address, just log in.</p>
-    <a class="button" href="/pages/login.php">Log in</a>
+    <a class="button button-gradient" href="/pages/login.php"><?= icon('log-in') ?> Log in</a>
     <p class="form-footer">Not confirmed yet? <a href="/pages/resend-verification.php">Send a new link</a></p>
-</section>
+</div>
 
+<?php require __DIR__ . '/../includes/auth-end.php'; ?>
 <?php require __DIR__ . '/../includes/footer.php'; ?>
